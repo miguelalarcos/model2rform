@@ -1,0 +1,36 @@
+SandboxedModule = require('sandboxed-module')
+
+class Session
+    constructor : -> @_container = {}
+    get : (name) -> @_container[name]
+    set : (name, value) -> @_container[name] = value
+    clear : -> @_container = {}
+
+session = new Session()    
+m = SandboxedModule.require('../lib/mform', 
+                            globals: {Session: session}
+                            )
+
+#m = require '../lib/mform'
+Model = m.Model
+SubModel = m.SubModel
+integer = m.integer
+required = m.required
+nested = m.nested
+
+class B extends SubModel
+    @x : [integer, required]
+    @y : [integer]
+    @attrs :['x', 'y']   
+    
+class @A extends Model
+    @a : [integer, required]
+    @b : [integer]
+    @n : [nested(B)]
+    @form_name : 'form'
+    #@collection : lista
+    @attrs : ['a','b']
+    
+exports.A = @A    
+exports.B = B
+exports.session = session

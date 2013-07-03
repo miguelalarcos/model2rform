@@ -1,0 +1,46 @@
+should = require 'should'
+assert = require("assert")
+
+m = require '../lib/mform'
+
+integer = m.integer
+float = m.float
+date = m.date
+
+describe 'test integer validation', ->
+    it 'should validate "1"', ->        
+        assert.equal(integer('1'), 1)
+    
+    it 'should validate 1', ->        
+        assert.equal(integer(1), 1)        
+        
+    it 'should not validate 1z', ->
+        (-> integer('1z')).should.throw()
+        
+describe 'test float validation', ->
+    it 'should validate +1', ->        
+        assert.equal(float('1'), 1)
+        
+    it 'should validate -.1', ->    
+        float('-.1').should.equal(-0.1)
+        #assert.equal(float('-.1'), -0.1)
+        
+    it 'should not validate z', ->
+        (-> float('z')).should.throw() 
+
+require '../lib/date-es-ES.js'
+        
+describe 'test date validation', ->
+    it 'should validate date', ->
+        d = new Date(1978, 2, 15)
+        date('dd-MM-yyyy')(d).should.equal(d)
+        
+    it "should validate '15-03-1978'", ->
+        sd = '15-03-1978'
+        d = new Date(1978, 2, 15)        
+        date('dd-MM-yyyy')(sd).should.eql(d)
+        
+        
+
+        
+        

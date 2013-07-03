@@ -1,0 +1,60 @@
+should = require 'should'
+assert = require("assert")
+#mongo_client = require('mongodb').MongoClient
+
+Meteor = {}
+Meteor.isClient = true
+
+SandboxedModule = require('sandboxed-module')
+m = SandboxedModule.require('../lib/mform', 
+                            globals: {Meteor: Meteor}
+                            )
+sinon = require './sinon'                            
+references = m.references
+
+#connection = null
+
+describe 'test references validation', ->
+    #beforeEach (done) -> 
+    #    console.log('connect to mongo')
+    #    mongo_client.connect "mongodb://localhost:27017/test", (err, db) ->
+    #                            connection = db
+    #                            console.log('drop collection')
+    #                            db.dropCollection "test_references", (err,x) ->
+    #                            console.log('create collection')
+    #                            collection = connection.collection('test_references')
+    #                            console.log('insert into collection')
+    #                            collection.insert {_id:'0', name:'blue'}, (err, docs) ->
+    #                            collection.insert {_id:'1', name:'red'}, (err, docs) -> 
+    #                  
+    #                                done()
+                                
+                                
+    #afterEach (done) ->
+    #    connection.close()
+    #    done()
+    
+    it 'should validate', () ->
+        collection = sinon.spy()
+        f = collection.findOne = sinon.stub()
+        f.returns({_id:'1'})
+        
+        references(collection, 'name')('red').should.eql('1')
+        f.calledWith({name:'red'}).should.be.true
+        
+        
+     
+        
+        #collection.findOne({name:'rojo'}, (err, doc)->
+        #    doc.should.eql({_id:'1', name: 'rojo'})
+        #    done()
+        #    )
+        
+        
+        
+   
+        
+                                        
+                                            
+        
+

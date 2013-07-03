@@ -1,0 +1,66 @@
+SandboxedModule = require('sandboxed-module')
+
+should = require 'should'
+sinon = require './sinon'   
+_ = require 'underscore'
+
+m = require './model_A'
+A = m.A
+B = m.B
+
+m = require './fake_utils'
+Session = m.Session
+Meteor=m.Meteor
+session = new Session()   
+dct = {Session: session,Meteor: Meteor}
+
+m = SandboxedModule.require('../lib/mform', 
+                            globals: dct
+                            )
+make_autorun = m._make_autorun
+
+
+describe 'test make autorun', ->
+    before ->
+        A.collection = sinon.spy()
+        A.collection.findOne = sinon.stub()
+        B.collection = sinon.spy()
+        B.collection.findOne = sinon.stub()
+    beforeEach -> session.clear()                
+    
+    it 'without path should findOne with _id = 0', ->
+        A.collection.findOne.returns({_id: '0', a:8})
+        session.set('form1_object_id', '0')
+        make_autorun('form1', A)()
+        obj = session.get('form1_object')        
+        b = _.isEqual(obj, {_id:'0', _path:[], dirty: [],  a:8, _error_a:'', _error_b : ''})
+        
+        b.should.be.ok
+        
+    it 'without path should not findOne', ->
+        A.collection.findOne.returns(null)
+        session.set('form1_object_id', '0')
+        make_autorun('form1', A)()
+        obj = session.get('form1_object')     
+        b = _.isEqual(obj, {_id:'', _path:[], dirty: [],  _error_a:'It is required', _error_b : ''})
+        
+        b.should.be.ok    
+        
+    it 'with path should findOne with _id=0.n.0', ->
+        B.collection.findOne.returns({_id: '0', a:8, n:[{x:0}]})
+        session.set('form1_object_id', '0.n.0')
+        make_autorun('form1', B)()
+        obj = session.get('form1_object')  
+        b = _.isEqual(obj, {_id:'0', _path:['n','0'], dirty: [],  x:0, _error_x:'', _error_y : ''})
+
+        b.should.be.ok
+        
+    it 'with path should findOne with _id=0.n', ->
+        B.collection.findOne.returns({_id: '0', a:8, n:{x:0}})
+        session.set('form1_object_id', '0.n')
+        make_autorun('form1', B)()
+        obj = session.get('form1_object')  
+        b = _.isEqual(obj, {_id:'0', _path:['n'], dirty: [],  x:0, _error_x:'', _error_y : ''})
+
+        b.should.be.ok     
+    
