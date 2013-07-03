@@ -123,7 +123,7 @@
       return true;
     };
 
-    Model.save = function(obj) {
+    Model.save = function(obj, form_name) {
       var dct, dct_aux, na, name, path, _i, _id_, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4;
       if (obj._path.length === 0) {
         dct = {};
@@ -147,7 +147,7 @@
             }
           }
           _id_ = this._collection.insert(dct);
-          return Session.set(this._form_name + '_object_id', _id_);
+          return Session.set(form_name + '_object_id', _id_);
         }
       } else {
         if (obj._path[obj._path.length - 1] === '-1') {

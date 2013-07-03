@@ -53,7 +53,7 @@
     dct['mouseup #' + form_name + '_save'] = function(e, t) {
       var obj;
       obj = Session.get(form_name + '_object');
-      return klass.save(obj);
+      return klass.save(obj, form_name);
     };
     dct['keyup .' + form_name + '_search'] = function(e, t) {
       if (e.which === 13) {
@@ -161,13 +161,21 @@
   };
 
   make_form = function(template, form_name, klass, parent, path) {
+    var x;
     if (parent == null) {
       parent = null;
     }
     if (path == null) {
       path = null;
     }
-    console.log('llego2');
+    console.log((function() {
+      var _results;
+      _results = [];
+      for (x in template) {
+        _results.push(x);
+      }
+      return _results;
+    })());
     if (!path) {
       Session.set(form_name + '_object_id', '');
     } else {

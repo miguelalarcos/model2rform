@@ -14,9 +14,7 @@ _on_change = (form_name, klass, name, value) ->
     if name not in obj._dirty
         obj._dirty.push(name)
     try
-        console.log('el validator es', klass[name][0])
         value = klass[name][0](value)   
-        console.log('pasado')
         
         for func in klass[name][1..]     
             func(value)
@@ -37,7 +35,7 @@ make_form_events = (form_name, klass) ->
     #it shoudl be click, but does not work in chrome (works in opera and firefox)
     dct['mouseup #'+form_name+'_save'] = (e, t)->        
         obj = Session.get(form_name+'_object')         
-        klass.save(obj)   
+        klass.save(obj, form_name)   
         
     dct['keyup .'+form_name+'_search'] =  (e,t) ->
         if e.which == 13
@@ -119,7 +117,7 @@ _disabled = (form_name, klass) ->
             
 # This is what the client must use        
 make_form = (template, form_name, klass, parent=null, path=null)->
-    console.log('llego2')
+    
     if not path
         Session.set(form_name+'_object_id', '')
     else

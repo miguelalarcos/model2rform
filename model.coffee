@@ -87,7 +87,7 @@ class Model
         return true                      
     
     #update or insert the object in the collection            
-    @save : (obj) ->       #se le debe pasar tb el form_name, y este debe desaparecer del modelo       
+    @save : (obj, form_name) ->       #se le debe pasar tb el form_name, y este debe desaparecer del modelo       
         if obj._path.length == 0
             dct = {}
             for name in obj._dirty
@@ -99,7 +99,8 @@ class Model
                     for na in @._nested_arrays
                         dct[na] = []
                 _id_ = @_collection.insert(dct)
-                Session.set(@_form_name+'_object_id', _id_)
+                #Session.set(@_form_name+'_object_id', _id_)
+                Session.set(form_name+'_object_id', _id_)
         else
             if obj._path[obj._path.length-1] == '-1'
                 path = obj._path[0...-1]
