@@ -62,7 +62,6 @@ _obj_from_path = (obj, path) ->
     
 #subscribe to the channel of the form_object_id and respective findOne    
 _make_autorun = (form_name, klass, parent)->->
-    console.log('llego1')
     if parent isnt null
         id = Session.get(parent+'_object_id')
         path = Session.get(form_name+'_object_id').split('.')
@@ -80,7 +79,6 @@ _make_autorun = (form_name, klass, parent)->->
             Session.set(form_name+'_object', klass.constructor(obj))  
         else
             Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}))
-            console.log('llego')
     else
         if obj            
             obj = _obj_from_path(obj, path)
@@ -175,7 +173,7 @@ make_form = (template, form_name, klass, parent=null, path=null)->
     template.rendered= -> #don't know why, but next events don't work ok if defined in template.events
         $('.'+form_name+'_attr_date').datepicker(format: 'dd-mm-yyyy', autoclose:true)
         $('.'+form_name+'_attr_date').on('changeDate', _on_change_generic(form_name,klass))
-        #$('.'+form_name+'_attr_datetime').datetimepicker(format: 'dd-mm-yyyy hh:ii:ss', autoclose:true)
+        $('.'+form_name+'_attr_datetime').datetimepicker(format: 'dd-mm-yyyy hh:ii:ss', autoclose:true)
         $('.'+form_name+'_attr_datetime').on('changeDate', _on_change_generic(form_name,klass))   
         $('.'+form_name+'_attr_autocomplete').on('change', _on_change_generic(form_name,klass))
         $('.'+form_name+'_attr_autocomplete').on('input', _on_change_generic(form_name,klass))
@@ -183,7 +181,7 @@ make_form = (template, form_name, klass, parent=null, path=null)->
 make_autocomplete =  (target_id, attr, collection) -> #, channel) ->
     #Meteor.subscribe(channel)
     Meteor.startup ->  #from stackoverflow: http://stackoverflow.com/questions/17197422/when-to-declare-a-datepicker-in-meteor-startup-or-rendered
-        #i must do in rendered
+        #I must do it in rendered
         $(target_id).typeahead
             source : (q,p)->    
                 dct = {}

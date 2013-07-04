@@ -116,7 +116,7 @@
 
   smin = function(limit) {
     return function(x) {
-      if (x.length < limit) {
+      if (x && x.length < limit) {
         throw "Length of string must be greater-equal than " + limit;
       }
     };
@@ -124,7 +124,7 @@
 
   smax = function(limit) {
     return function(x) {
-      if (x.length > limit) {
+      if (x && x.length > limit) {
         throw "Length of string must be less-equal than " + limit;
       }
     };

@@ -1,7 +1,6 @@
 {
 "name": "py2rform",
 "packages" :  {
-               "bootstrap-datepicker": "0.5.1",
                "underscore-string":"", 
                "momentjs": ""
            }

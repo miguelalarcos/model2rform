@@ -28,9 +28,7 @@
       obj._dirty.push(name);
     }
     try {
-      console.log('el validator es', klass[name][0]);
       value = klass[name][0](value);
-      console.log('pasado');
       _ref = klass[name].slice(1);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         func = _ref[_i];
@@ -83,7 +81,6 @@
   _make_autorun = function(form_name, klass, parent) {
     return function() {
       var id, obj, path;
-      console.log('llego1');
       if (parent !== null) {
         id = Session.get(parent + '_object_id');
         path = Session.get(form_name + '_object_id').split('.');
@@ -100,11 +97,10 @@
           obj._path = [];
           return Session.set(form_name + '_object', klass.constructor(obj));
         } else {
-          Session.set(form_name + '_object', klass.constructor({
+          return Session.set(form_name + '_object', klass.constructor({
             _id: '',
             _path: []
           }));
-          return console.log('llego');
         }
       } else {
         if (obj) {
@@ -161,21 +157,12 @@
   };
 
   make_form = function(template, form_name, klass, parent, path) {
-    var x;
     if (parent == null) {
       parent = null;
     }
     if (path == null) {
       path = null;
     }
-    console.log((function() {
-      var _results;
-      _results = [];
-      for (x in template) {
-        _results.push(x);
-      }
-      return _results;
-    })());
     if (!path) {
       Session.set(form_name + '_object_id', '');
     } else {
@@ -241,6 +228,10 @@
         autoclose: true
       });
       $('.' + form_name + '_attr_date').on('changeDate', _on_change_generic(form_name, klass));
+      $('.' + form_name + '_attr_datetime').datetimepicker({
+        format: 'dd-mm-yyyy hh:ii:ss',
+        autoclose: true
+      });
       $('.' + form_name + '_attr_datetime').on('changeDate', _on_change_generic(form_name, klass));
       $('.' + form_name + '_attr_autocomplete').on('change', _on_change_generic(form_name, klass));
       return $('.' + form_name + '_attr_autocomplete').on('input', _on_change_generic(form_name, klass));

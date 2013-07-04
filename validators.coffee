@@ -77,13 +77,13 @@ max = (limit) ->
         
 smin = (limit) ->
     (x) ->
-        if x.length < limit
+        if x and x.length < limit
             throw "Length of string must be greater-equal than " + limit
         
         
 smax = (limit) ->
     (x) ->
-        if x.length > limit
+        if x and x.length > limit
             throw "Length of string must be less-equal than " + limit
                 
 
