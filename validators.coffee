@@ -40,7 +40,7 @@ date = (format) ->
 datetime = date
 
 integer = (x) ->
-    if x
+    if x != ''
         reg = /^(\+|-)?\d+$/
         if not reg.test(x)
             throw "Must be an integer"
@@ -50,7 +50,7 @@ integer = (x) ->
         ''
 
 float = (x) ->
-    if x
+    if x != ''
         reg = /^(\+|-)?((\d+(\.\d+)?)|(\.\d+))$/
         if not reg.test(x)
             throw "Must be a float"
@@ -117,7 +117,7 @@ string_select = (list) ->
             throw "Value must be in the list"
         x
 
-@validators = 
+@model2rform_validators = 
     boolean: boolean
     string: string
     text: text
@@ -139,5 +139,5 @@ string_select = (list) ->
     
 
 if typeof exports != 'undefined'  
-    exports.validators = @validators
+    exports.validators = @model2rform_validators
         

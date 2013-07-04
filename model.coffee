@@ -1,3 +1,13 @@
+dct_from_modifier = (modifier) ->
+    if modifier['$set']
+        dct = modifier['$set']
+    else
+        dct = {}
+        for name of modifier['$push']
+            for attr of modifier['$push'][name]
+                dct[name+'.'+attr] = modifier['$push'][name][attr]
+    return dct            
+
 # you must extend from this. All the methods are class methods. This is because
 # when you save an object, for example of class A, in the Session, when you
 # do the get, you will get a raw javascript object without the methods of A. So I
@@ -19,7 +29,6 @@ class Model
         obj
     
     @validate : (obj, id) ->
-        console.log('validate', obj, id)
         #if arrayEqual([], (x for x of obj))
         if _.isEmpty(obj)
             return false
@@ -59,7 +68,7 @@ class Model
                         ok_for_requireds = true
                         requireds = []
                         for attr in klass._attrs
-                            if required in klass[attr]
+                            if model2rform_validators.required in klass[attr]
                                 requireds.push(attr)
                         #does not work        
                         #requireds = (x for x in klass.attr if required in klass[attr])
@@ -123,9 +132,10 @@ class Model
 
 class SubModel extends Model
 
-@model = 
+@model2rform_model = 
     Model: Model
     SubModel: SubModel
+    dct_from_modifier: dct_from_modifier
 
 if typeof exports != 'undefined'  
-    exports.model = @model
+    exports.model = @model2rform_model

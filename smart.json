@@ -1,6 +1,12 @@
 {
-"name": "py2rform",
-"packages" :  {
+    "name": "py2rform",
+    "description": "A form maker for the Meteor Platform. It uses a little of Python.",
+    "homepage": "https://github.com/miguelalarcos/model2rform",
+    "author": "Miguel Angel Alarcos Torrecillas (http://about.me/miguel.alarcos)",
+    "version": "0.1.0",
+    "git": "https://github.com/miguelalarcos/model2rform.git",
+
+    "packages" :  {
                "underscore-string":"", 
                "momentjs": ""
            }

@@ -37,9 +37,6 @@ make_form_events = (form_name, klass) ->
         obj = Session.get(form_name+'_object')         
         klass.save(obj, form_name)   
         
-    dct['keyup .'+form_name+'_search'] =  (e,t) ->
-        if e.which == 13
-            Session.set(form_name + '_object_id', $(e.target).val())            
             
     dct['input .'+form_name+'_attr'] = _on_change_generic(form_name, klass)    
     dct['change .'+form_name+'_attr_bool'] = _on_change_bool(form_name, klass)
@@ -193,7 +190,7 @@ make_autocomplete =  (target_id, attr, collection) -> #, channel) ->
                 p ret
                 ret    
 
-@make_form =
+@model2rform_make_form =
     make_form: make_form
     make_autocomplete: make_autocomplete
 

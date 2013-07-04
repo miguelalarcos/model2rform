@@ -10,7 +10,7 @@ validators = SandboxedModule.require('../validators',
                             globals: dct
                             )
 
-dct['required'] = validators.validators.required
+dct['model2rform_validators'] = validators.validators
 model = SandboxedModule.require('../model', 
                             globals: dct
                             )

@@ -1,0 +1,7 @@
+.error {
+    color:red;
+    font-size:12px;
+}
+
+.dirty {border-color: yellow !important;}
+.invisible {display: none;}
