@@ -111,7 +111,7 @@ _disabled = (form_name, klass) ->
         ''
             
 # This is what the client must use        
-make_form = (template, form_name, klass, parent=null, path=null)->
+make_form = (template, form_name, klass, for_rendered=null, parent=null, path=null)->
     
     if not path
         Session.set(form_name+'_object_id', '')
@@ -168,31 +168,40 @@ make_form = (template, form_name, klass, parent=null, path=null)->
             ''
     #Meteor.startup ->
     template.rendered= -> #don't know why, but next events don't work ok if defined in template.events
-        $('.'+form_name+'_attr_date').datepicker(format: 'dd-mm-yyyy', autoclose:true)
+        #$('.'+form_name+'_attr_date').datepicker(format: 'dd-mm-yyyy', autoclose:true)
+        for d of for_rendered['date']
+            $(d).datepicker(format: for_rendered['date'][d], autoclose:true)
         $('.'+form_name+'_attr_date').on('changeDate', _on_change_generic(form_name,klass))
-        $('.'+form_name+'_attr_datetime').datetimepicker(format: 'dd-mm-yyyy hh:ii:ss', autoclose:true)
+
+        for dt of for_rendered['datetime']
+            $(dt).datetimepicker(format: for_rendered['datetime'][dt], autoclose:true)
+        #$('.'+form_name+'_attr_datetime').datetimepicker(format: 'dd-mm-yyyy hh:ii:ss', autoclose:true)
         $('.'+form_name+'_attr_datetime').on('changeDate', _on_change_generic(form_name,klass))   
         $('.'+form_name+'_attr_autocomplete').on('change', _on_change_generic(form_name,klass))
         $('.'+form_name+'_attr_autocomplete').on('input', _on_change_generic(form_name,klass))
+
+        for ac of for_rendered['autocomplete']
+            #channel = for_rendered['autocomplete'][ac][0]
+            #attr = for_rendered['autocomplete'][ac][1]
+            #collection = for_rendered['autocomplete'][ac][2]
+            [channel, attr, collection] = for_rendered['autocomplete'][ac]
+            Meteor.subscribe(channel)
+            make_autocomplete ac, attr, collection
         
-make_autocomplete =  (target_id, attr, collection) -> #, channel) ->
-    #Meteor.subscribe(channel)
-    Meteor.startup ->  #from stackoverflow: http://stackoverflow.com/questions/17197422/when-to-declare-a-datepicker-in-meteor-startup-or-rendered
-        #I must do it in rendered
-        $(target_id).typeahead
-            source : (q,p)->    
-                dct = {}
-                dct[attr] = {$regex: ".*"+q+".*"}
-                c = collection.find(dct)
-                ret = []
-                c.forEach (race) ->
-                    ret.push(race[attr])
-                p ret
-                ret    
+make_autocomplete =  (target_id, attr, collection) ->     
+    $(target_id).typeahead
+        source : (q,p)->    
+            dct = {}
+            dct[attr] = {$regex: ".*"+q+".*"}
+            c = collection.find(dct)
+            ret = []
+            c.forEach (race) ->
+                ret.push(race[attr])
+            p ret
+            ret    
 
 @model2rform_make_form =
     make_form: make_form
-    make_autocomplete: make_autocomplete
 
 if typeof exports != 'undefined'    
     exports.make_form =             
