@@ -39,14 +39,19 @@ date = (format) ->
 datetime = date
 
 integer = (x) ->
-    if x != ''
-        reg = /^(\+|-)?\d+$/
-        if not reg.test(x)
-            throw "Must be an integer"
+    if Meteor.isClient
+        if x != ''
+            reg = /^(\+|-)?\d+$/
+            if not reg.test(x)
+                throw "Must be an integer"
+            else
+                parseInt(x)
         else
-            parseInt(x)
+            ''
     else
-        ''
+        if not typeof x == 'number'
+            throw "Must be an integer"
+        Math.round(x)
 
 float = (x) ->
     if x != ''

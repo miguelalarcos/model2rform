@@ -20,7 +20,10 @@ class Model
         obj._dirty = []
         if initials
             for attr of @_initials
-                obj[attr] = @_initials[attr]
+                value = @_initials[attr]
+                if value == moment
+                    value = moment().toDate()
+                obj[attr] = value
                 obj._dirty.push(attr)
         for attr in @_attrs        
             try

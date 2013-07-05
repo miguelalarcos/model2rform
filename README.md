@@ -8,15 +8,14 @@ Let's go to an example, the *model.py* (you can see the complete [example.](http
 ```python
 class A(Model):
     _collection = 'myCollection'
-
     i = [integer, required, min(5), max(10)]
-    s = [string, email, smin(7), smax(10)]
-    d = [date('DD-MM-YYYY')]
+    s = [string('mig@m.es'), email, smin(7), smax(10)]
+    d = [date('DD-MM-YYYY', initial='today')]
     dt = [datetime('DD-MM-YYYY HH:mm:ss')]
-    ss = [string_select(['red','yellow','green']), required]
-    f = [float, min(-5.5), max(5.5)]
-    b = [boolean]
-    t = [text]
+    ss = [string_select(['red','yellow','green'], initial='yellow'), required]
+    f = [float(0.01), min(-5.5), max(5.5)]
+    b = [boolean(True)]
+    t = [text('hello world')]
     c = [computed('add_i_f')]
     ac = [references('clientsCollection','name')]
     sa = [string_array]
@@ -50,6 +49,8 @@ i = [integer, required, min(5), max(10)]
 
 If any of *integer* or *func* throws an error, the attr does not pass the validation.
 It is important to say that de array must have as first field a transformation (integer, float, date, boolean, string) and then there are zero or more validations (required, imin, ...)
+
+Note that for example to float is passed a default initial value. If we don't want to have an initial value, just use *float* without the parenthesis. Note also than for date, it is passed an extra argument *initial*. Don't use it if you don't want an initial argument for the date.
 
 Let's see the other models:
 
