@@ -16,8 +16,12 @@ class Model
     @_path: null # ver si lo utilizo o no
     
     # it will set up the _error_attr attributes
-    @constructor: (obj)->
+    @constructor: (obj, initials=false)->
         obj._dirty = []
+        if initials
+            for attr of @_initials
+                obj[attr] = @_initials[attr]
+                obj._dirty.push(attr)
         for attr in @_attrs        
             try
                 val = obj[attr]
@@ -25,7 +29,7 @@ class Model
                     func(val)
                 obj['_error_'+attr] = ''    
             catch error                   
-                obj['_error_'+attr] = error
+                obj['_error_'+attr] = error        
         obj
     
     @validate : (obj, id) ->

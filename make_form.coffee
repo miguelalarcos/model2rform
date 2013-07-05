@@ -75,7 +75,7 @@ _make_autorun = (form_name, klass, parent)->->
             obj._path = []
             Session.set(form_name+'_object', klass.constructor(obj))  
         else
-            Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}))
+            Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=true))
     else
         if obj            
             obj = _obj_from_path(obj, path)
@@ -83,7 +83,7 @@ _make_autorun = (form_name, klass, parent)->->
             Session.set(form_name+'_object', klass.constructor(obj))
         else            
             #I have doubts about this line
-            Session.set(form_name+'_object', klass.constructor({_id:''}))         
+            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=true))         
 
 _dirty = (form_name) ->
     (attr) ->

@@ -1,5 +1,4 @@
 # #### VALIDATORS AND TRANSFORMATIONS #########
-#the layout gives me a boolean, so I don't have to do anything
 boolean = (x) -> x
     
 string = (x) -> x    
@@ -90,6 +89,8 @@ smax = (limit) ->
 references = (list, attr) ->
     (x) ->  
         if Meteor.isClient
+            if x == ''
+                return ''
             dct = {}
             dct[attr] = x
             
@@ -100,6 +101,8 @@ references = (list, attr) ->
             else
                 throw "Value must be in the list."
         else
+            if x == ''
+                return ''
             if list.findOne({_id: x})
                 return x
             else
