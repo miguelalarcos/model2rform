@@ -19,16 +19,12 @@ class Model
     @constructor: (obj, initials=false)->
         obj._dirty = []
         if initials
-            console.log('initials', initials)
-            for attr of @_initials[initials]
-                console.log(attr)
-                value = @_initials[initials][attr]
-                if value == moment
-                    value = moment().toDate()
-                else
-                    if typeof value == 'function'                        
-                        value = value()          
+            json_exp = JSON.parse(initials)
 
+            for attr of json_exp
+                value = json_exp[attr]                
+                if attr in @_dates
+                    value = new Date(value)
                 obj[attr] = value
                 obj._dirty.push(attr)
         for attr in @_attrs        
@@ -42,7 +38,7 @@ class Model
         obj
     
     @validate : (obj, id) ->
-        #if arrayEqual([], (x for x of obj))
+        console.log('validate', obj, id)
         if _.isEmpty(obj)
             return false
         
@@ -121,7 +117,6 @@ class Model
                     for na in @._nested_arrays
                         dct[na] = []
                 _id_ = @_collection.insert(dct)
-                #Session.set(@_form_name+'_object_id', _id_)
                 Session.set(form_name+'_object_id', _id_)
         else
             if obj._path[obj._path.length-1] == '-1'

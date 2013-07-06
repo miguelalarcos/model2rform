@@ -51,11 +51,15 @@ date = (format) ->
                 throw 'Date not valid'
         else
             if not (x instanceof Date)
+                console.log("Value must be a Date type")
                 throw "Value must be a Date type"
             moment(x)
 
 
 datetime = date
+
+today = ->
+    moment().toDate()
 
 integer = (x) ->
     if Meteor.isClient

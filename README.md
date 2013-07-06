@@ -6,19 +6,27 @@ Model to reactive form: this is the work of a newbie in Meteor trying to make fo
 Let's go to an example, the *model.py* (you can see the complete [example.](https://github.com/miguelalarcos/demo-model2rform)):
 
 ```python
+initials = {
+    'initial_a' : {'i': 5, 's': 'mig@m.es'},
+    'initial_b' : {'d': today, 'ss': 'yellow'},
+    'initial_c' : {'f': -0.01, 'b': true, 
+                   'ac': references_('clientsCollection', 'name', 'pedro')}
+}
+
 class A(Model):
     _collection = 'myCollection'
+    _initials = initials
     i = [integer, required, min(5), max(10)]
-    s = [string('mig@m.es'), email, smin(7), smax(10)]
-    d = [date('DD-MM-YYYY', initial='today')]
+    s = [string, email, smin(7), smax(10)]
+    d = [date('DD-MM-YYYY')]
     dt = [datetime('DD-MM-YYYY HH:mm:ss')]
-    ss = [string_select(['red','yellow','green'], initial='yellow'), required]
-    f = [float(-0.01), min(-5.5), max(5.5)]
-    b = [boolean(True)]
-    t = [text('hello world')]
+    ss = [string_select(['red','yellow','green']), required]
+    f = [float, min(-5.5), max(5.5)]
+    b = [boolean]
+    t = [text]
     c = [computed('add_i_f')]
-    ac = [references('clientsCollection','name',initial='pedro')]
-    sa = [string_array(initial=['game', 'over!'])]
+    ac = [references('clientsCollection','name')]
+    sa = [string_array]
     n = [nested('B')]
     na = [nested_array('C')]
 ```
@@ -50,7 +58,9 @@ i = [integer, required, min(5), max(10)]
 If any of *integer* or *func* throws an error, the attr does not pass the validation.
 It is important to say that de array must have as first field a transformation (integer, float, date, boolean, string) and then there are zero or more validations (required, imin, ...)
 
-Note that for example to float is passed a default initial value. If we don't want to have an initial value, just use *float* without the parenthesis. Note also than for date, it is passed an extra argument *initial*. Don't use it if you don't want an initial argument for the date.
+The initial dict specifies three different set of initial values. When we create a new object, we can pass the creator one set of initial values. See below at *behind the scenes*.
+
+---
 
 Let's see the other models:
 
@@ -157,7 +167,9 @@ Behind the scenes:
 
 When make_form is called, two important Session vars are created:
 
-* form_name + '\_object_id': the _id of the object mapped with the form
+* form_name + '\_object_id': 
+    * form: the _id of the object mapped with the form + '.' + name of a set of initial values.
+    * subform: path to the subobject + '.' + name of a set of initial values.
 * form_name + '\_object': the object mapped with the form
 
 (Automatically it is made the subscribe to the chanel *form_name+'_x_id'*, that publishes the element with the given *_id*.)

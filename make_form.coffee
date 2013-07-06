@@ -56,17 +56,24 @@ _obj_from_path = (obj, path) ->
     obj._id = id
     obj
     
+_str_xsplit = (txt) ->
+    json_exp = _.strRight(txt, '.{')
+    if json_exp == txt
+        id_path = txt
+        json_exp = ""
+    else
+        json_exp = "{" + json_exp
+        id_path = _.strLeft(txt, '.{')   
+    return [id_path, json_exp]
     
 #subscribe to the channel of the form_object_id and respective findOne    
 _make_autorun = (form_name, klass, parent)->->
     if parent isnt null
-        id = Session.get(parent+'_object_id')
-        path_ = Session.get(form_name+'_object_id').split('.')
-        path = path_[...-1]
-        initial = path_[-1...][0]
-        console.log('initial', initial)
+        [id, jex] = _str_xsplit(Session.get(parent+'_object_id'))
+        [path, initial] = _str_xsplit(Session.get(form_name+'_object_id'))
+        path = path.split('.')
     else
-        [id, initial] = Session.get(form_name+'_object_id').split('.')
+        [id, initial] = _str_xsplit(Session.get(form_name+'_object_id'))        
         path = []
   
         
@@ -78,7 +85,7 @@ _make_autorun = (form_name, klass, parent)->->
             obj._path = []
             Session.set(form_name+'_object', klass.constructor(obj))  
         else
-            Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=initial))
+            Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=initial))            
     else
         if obj            
             obj = _obj_from_path(obj, path)
@@ -117,7 +124,7 @@ _disabled = (form_name, klass) ->
 make_form = (template, form_name, klass, for_rendered=null, parent=null, path=null)->
     
     if not path
-        Session.set(form_name+'_object_id', '.')
+        Session.set(form_name+'_object_id', '')
     else
         Meteor.autorun ->
             Session.get(parent+'_object_id')
