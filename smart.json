@@ -3,7 +3,7 @@
     "description": "A form maker for the Meteor Platform. It uses a little of Python.",
     "homepage": "https://github.com/miguelalarcos/model2rform",
     "author": "Miguel Angel Alarcos Torrecillas (http://about.me/miguel.alarcos, miguel.alarcos at gmail.com)",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "git": "https://github.com/miguelalarcos/model2rform.git",
 
     "packages" :  {

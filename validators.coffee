@@ -1,40 +1,59 @@
 # #### VALIDATORS AND TRANSFORMATIONS #########
-boolean = (x) -> x
+boolean = (x) -> 
+    if Meteor.isClient
+        x
+    else
+        if not (typeof x == 'boolean')
+            throw "The value must be a boolean"
+        x
     
-string = (x) -> x    
+string = (x) -> 
+    if Meteor.isClient
+        x
+    else
+        if not (typeof x == 'string')
+            throw "The value must be a string"
+        x
 
-text = (x) -> x
+text = (x) -> 
+    if Meteor.isClient
+        x
+    else
+        if not (typeof x == 'string')
+            throw "The value must be a string"
+        x
 
+ 
 nested = (klass) ->
     klass: klass
 
 nested_array = (klass) ->
     klass: klass     
 
-string_array = (txt) ->
-    if typeof txt == 'string' 
-        return txt.split('\n')
-
-    if _.isArray(txt)
-        for v in txt
-            if not typeof v == 'string'
-                throw "The array must be of strings."
-        return txt
-    
-    throw 'string_array error'
+string_array = (x) ->
+    if Meteor.isClient
+        x.split('\n')
+    else
+        if not _.isArray(x)
+            throw 'Value must be an array'
+        for v in x
+            if not (typeof v == 'string')
+                throw 'Value must be an array of strings'
+        x
 
 date = (format) ->
-    (x)->         
-        if x instanceof Date             
-            moment(x)
-        else
-            if not _.isString(x)
-                throw 'Date not valid'
+    (x) ->
+        if Meteor.isClient
             x = moment(x, format)
             if x.isValid()
                 x
             else
                 throw 'Date not valid'
+        else
+            if not (x instanceof Date)
+                throw "Value must be a Date type"
+            moment(x)
+
 
 datetime = date
 
@@ -49,19 +68,24 @@ integer = (x) ->
         else
             ''
     else
-        if not typeof x == 'number'
+        if not (typeof x == 'number')
             throw "Must be an integer"
         Math.round(x)
 
 float = (x) ->
-    if x != ''
-        reg = /^(\+|-)?((\d+(\.\d+)?)|(\.\d+))$/
-        if not reg.test(x)
-            throw "Must be a float"
+    if Meteor.isClient
+        if x != ''
+            reg = /^(\+|-)?((\d+(\.\d+)?)|(\.\d+))$/
+            if not reg.test(x)
+                throw "Must be a float"
+            else
+                parseFloat(x)        
         else
-            parseFloat(x)        
+            ''
     else
-        ''
+        if not (typeof x == 'number')
+            throw "Must be an float"
+        x
         
 # check if is null (and equivalents)        
 required = (x) ->
