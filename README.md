@@ -13,12 +13,12 @@ class A(Model):
     d = [date('DD-MM-YYYY', initial='today')]
     dt = [datetime('DD-MM-YYYY HH:mm:ss')]
     ss = [string_select(['red','yellow','green'], initial='yellow'), required]
-    f = [float(0.01), min(-5.5), max(5.5)]
+    f = [float(-0.01), min(-5.5), max(5.5)]
     b = [boolean(True)]
     t = [text('hello world')]
     c = [computed('add_i_f')]
-    ac = [references('clientsCollection','name')]
-    sa = [string_array]
+    ac = [references('clientsCollection','name',initial='pedro')]
+    sa = [string_array(initial=['game', 'over!'])]
     n = [nested('B')]
     na = [nested_array('C')]
 ```
@@ -142,7 +142,7 @@ Note that we don't call from the objet but from de class: *A.validate(dct, ...*.
 I think that the reference case is very interesting. Let's explain it a bit:
 
 ```python
-ac = [references('clientsCollection','name')]
+ac = [references('clientsCollection','name', initial='pedro')]
 ```
 
 It means that the value displayed references unique attribute *name* of collection clientsCollection, and ac stores de _id. In other words:

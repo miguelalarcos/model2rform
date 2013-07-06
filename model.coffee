@@ -19,10 +19,16 @@ class Model
     @constructor: (obj, initials=false)->
         obj._dirty = []
         if initials
-            for attr of @_initials
-                value = @_initials[attr]
+            console.log('initials', initials)
+            for attr of @_initials[initials]
+                console.log(attr)
+                value = @_initials[initials][attr]
                 if value == moment
                     value = moment().toDate()
+                else
+                    if typeof value == 'function'                        
+                        value = value()          
+
                 obj[attr] = value
                 obj._dirty.push(attr)
         for attr in @_attrs        

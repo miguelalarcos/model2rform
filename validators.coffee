@@ -137,6 +137,16 @@ references = (list, attr) ->
             else
                 throw "Value must be a valid Id."
 
+references_ = (list, attr, x) ->
+    ->
+        dct = {}
+        dct[attr] = x
+        
+        obj = list.findOne(dct)
+
+        if obj            
+            return obj._id
+
 email = (x) ->
     if x
         reg = /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+.)+([a-zA-Z0-9]{2,4})+$/
@@ -166,6 +176,7 @@ string_select = (list) ->
     smin: smin
     smax :smax
     references: references
+    references_: references_
     email: email
     string_select: string_select
     

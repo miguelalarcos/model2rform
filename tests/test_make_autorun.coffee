@@ -48,7 +48,7 @@ describe 'test make autorun', ->
         
     it 'with path should findOne with _id=0.n.0', ->
         B._collection.findOne.returns({_id: '0', a:8, n:[{x:0}]})
-        session.set('form1_object_id', 'n.0')
+        session.set('form1_object_id', 'n.0.')
         session.set('parent_object_id', '0')
         make_autorun('form1', B, 'parent')()
         obj = session.get('form1_object')  
@@ -58,7 +58,7 @@ describe 'test make autorun', ->
         
     it 'with path should findOne with _id=0.n', ->
         B._collection.findOne.returns({_id: '0', a:8, n:{x:0}})
-        session.set('form1_object_id', 'n')
+        session.set('form1_object_id', 'n.')
         session.set('parent_object_id', '0')
         make_autorun('form1', B, 'parent')()
         obj = session.get('form1_object')  

@@ -61,9 +61,12 @@ _obj_from_path = (obj, path) ->
 _make_autorun = (form_name, klass, parent)->->
     if parent isnt null
         id = Session.get(parent+'_object_id')
-        path = Session.get(form_name+'_object_id').split('.')
+        path_ = Session.get(form_name+'_object_id').split('.')
+        path = path_[...-1]
+        initial = path_[-1...][0]
+        console.log('initial', initial)
     else
-        id = Session.get(form_name+'_object_id')
+        [id, initial] = Session.get(form_name+'_object_id').split('.')
         path = []
   
         
@@ -75,7 +78,7 @@ _make_autorun = (form_name, klass, parent)->->
             obj._path = []
             Session.set(form_name+'_object', klass.constructor(obj))  
         else
-            Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=true))
+            Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=initial))
     else
         if obj            
             obj = _obj_from_path(obj, path)
@@ -83,7 +86,7 @@ _make_autorun = (form_name, klass, parent)->->
             Session.set(form_name+'_object', klass.constructor(obj))
         else            
             #I have doubts about this line
-            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=true))         
+            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))         
 
 _dirty = (form_name) ->
     (attr) ->
@@ -114,7 +117,7 @@ _disabled = (form_name, klass) ->
 make_form = (template, form_name, klass, for_rendered=null, parent=null, path=null)->
     
     if not path
-        Session.set(form_name+'_object_id', '')
+        Session.set(form_name+'_object_id', '.')
     else
         Meteor.autorun ->
             Session.get(parent+'_object_id')
