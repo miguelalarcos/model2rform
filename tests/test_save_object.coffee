@@ -15,9 +15,11 @@ describe 'test save object', ->
         A._collection.update = sinon.stub()
         A._collection.insert = sinon.stub()
         A._collection.insert.returns('0')
-        
-        B._collection = sinon.spy()
-        B._collection.update = sinon.stub()
+        A._collection.findOne = sinon.stub()
+
+        B._collection = A._collection
+        #B._collection = sinon.spy()
+        #B._collection.update = sinon.stub()
     beforeEach -> session.clear()                
     
     it 'should save {_path:[], dirty:["a"], a: 8, b: 9} with insert', ->
@@ -33,16 +35,19 @@ describe 'test save object', ->
         A._collection.update.calledWith({_id: '0'}, {$set:{a:8}}).should.be.ok
         
     it "should save {_path:['n','-1'], _id:'0', dirty:['x'], x:3, y:9} with push", ->
+        A._collection.findOne.returns({'n': [{}, {}]})
         obj = {_path:['n','-1'], _id:'0', _dirty:['x'], x:3, y:9}
         B.save(obj)
         B._collection.update.calledWith({_id:'0'}, {$push: {'n':{x:3, nn:[]}}}).should.be.ok
         
     it "should save {_path:['n','1'], _id:'0', dirty:['x'], x:3, y:9} with update $set", ->
-        obj = {_path:['n','2'], _id:'0', _dirty:['x'], x:3, y:9}
+        
+        obj = {_path:['n','1'], _id:'0', _dirty:['x'], x:3, y:9}
         B.save(obj)
-        B._collection.update.calledWith({_id:'0'}, {$set:{'n.2.x': 3}}).should.be.ok
+        B._collection.update.calledWith({_id:'0'}, {$set:{'n.1.x': 3}}).should.be.ok
     
-    it "should save {_path:['n','1'], _id:'0', dirty:['x'], x:3, y:9} with update $set", ->
+    it "should save {_path:['n'], _id:'0', dirty:['x'], x:3, y:9} with update $set", ->
+        
         obj = {_path:['n'], _id:'0', _dirty:['x'], x:3, y:9}
         B.save(obj)
         B._collection.update.calledWith({_id:'0'}, {$set:{'n.x': 3}}).should.be.ok

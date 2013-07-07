@@ -58,7 +58,7 @@ _obj_from_path = (obj, path) ->
     
     
 #subscribe to the channel of the form_object_id and respective findOne    
-_make_autorun = (form_name, klass, parent, path_)->->
+_make_autorun = (form_name, klass, parent, path)->->
     if parent isnt null
         x = Session.get(parent+'_object_id')
         if typeof x == 'string'
@@ -66,26 +66,28 @@ _make_autorun = (form_name, klass, parent, path_)->->
         else
             id = ''
 
-        path = path_.split('.')
+        path_ = path.split('.')
         initial = Session.get(form_name+'_object_id')
         if typeof initial == 'string'
-            path = initial.split('.')
+            path_[path_.length-1] = initial
             initial = {}
     else
         x = Session.get(form_name+'_object_id')
         if typeof x == 'string'
             id = x
         else
-            [id, initial] = ['', x]
-        path = []
+            id = ''
+            initial = x
+        path_ = []
   
         
-    Meteor.subscribe(form_name+"_x_id", id)
+    #Meteor.subscribe(form_name+"_x_id", id)
     if id == ''
         obj = null
     else
+        Meteor.subscribe(form_name+"_x_id", id)
         obj = klass._collection.findOne({_id: id})
-    if path.length == 0        
+    if path_.length == 0        
         if obj
             obj._path = []
             Session.set(form_name+'_object', klass.constructor(obj))  
@@ -93,9 +95,9 @@ _make_autorun = (form_name, klass, parent, path_)->->
             Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=initial))            
     else
         if obj            
-            obj = _obj_from_path(obj, path)
-            obj._path = path
-            if _.isEqual(obj, {_id: obj._id, _path:path})
+            obj = _obj_from_path(obj, path_)
+            obj._path = path_
+            if _.isEqual(obj, {_id: obj._id, _path:path_})
                 Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
             else
                 Session.set(form_name+'_object', klass.constructor(obj))         
@@ -113,7 +115,8 @@ _dirty = (form_name) ->
 
 _invisible = (parent) ->
     ->
-        if Session.get(parent+'_object_id') == '' or _.isObject(Session.get(parent+'_object_id'))
+        #if Session.get(parent+'_object_id') == '' or 
+        if _.isObject(Session.get(parent+'_object_id'))
             "invisible"
         else
             ""

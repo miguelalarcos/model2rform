@@ -116,9 +116,19 @@ class Model
                         dct[na] = []
                 _id_ = @_collection.insert(dct)
                 Session.set(form_name+'_object_id', _id_)
-        else
-            if obj._path[obj._path.length-1] == '-1'
-                path = obj._path[0...-1]
+        else            
+            last = obj._path[obj._path.length-1]
+            if /^\d+/.test(last) or last == '-1'
+                pos = parseInt(last)
+                path = obj._path[0...-1].join('.')
+                dct = {}
+                dct[path] = 1
+                lista = @_collection.findOne({_id: obj._id}, dct)[path]
+            else
+                pos = null            
+            
+            if pos isnt null and (pos == -1 or pos >= lista.length)
+                path = obj._path[0...-1].join('.')
                 dct_aux = {}
                 for name in obj._dirty
                     dct_aux[name] = obj[name]
@@ -127,13 +137,14 @@ class Model
                     for na in @._nested_arrays
                         dct_aux[na] = []    
                 dct = {}
-                dct[path.join('.')] = dct_aux
+                dct[path] = dct_aux
                 @_collection.update({_id: obj._id}, {$push: dct })
             else
                 path = obj._path.join('.')
                 dct_aux = {}
                 for name in obj._dirty
-                    dct_aux[path+'.'+name] = obj[name]                
+                    dct_aux[path+'.'+name] = obj[name]      
+                console.log({_id:obj._id}, {$set: dct_aux})          
                 @_collection.update({_id:obj._id}, {$set: dct_aux})
 
 class SubModel extends Model

@@ -39,7 +39,7 @@ describe 'test template helpers', ->
         
     it "invisible helper should return 'invisible'", ->
         invisible = _invisible('form')
-        session.set('form_object_id', '')
+        session.set('form_object_id', {})
         
         invisible().should.eql('invisible')
         
