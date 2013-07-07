@@ -19,12 +19,10 @@ class Model
     @constructor: (obj, initials=false)->
         obj._dirty = []
         if initials
-            #json_exp = JSON.parse(initials)
-
-            for attr of initials#json_exp
-                value = initials[attr] #json_exp[attr]                
-                #if attr in @_dates
-                #    value = new Date(value)
+            console.log(initials)
+            for attr of initials
+                console.log(attr)
+                value = initials[attr]                 
                 obj[attr] = value
                 obj._dirty.push(attr)
         for attr in @_attrs        
@@ -38,7 +36,7 @@ class Model
         obj
     
     @validate : (obj, id) ->
-        console.log('validate', obj, id)
+        
         if _.isEmpty(obj)
             return false
         

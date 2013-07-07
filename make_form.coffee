@@ -56,15 +56,6 @@ _obj_from_path = (obj, path) ->
     obj._id = id
     obj
     
-#_str_xsplit = (txt) ->
-#    json_exp = _.strRight(txt, '.{')
-#    if json_exp == txt
-#        id_path = txt
-#        json_exp = ""
-#    else
-#        json_exp = "{" + json_exp
-#        id_path = _.strLeft(txt, '.{')   
-#    return [id_path, json_exp]
     
 #subscribe to the channel of the form_object_id and respective findOne    
 _make_autorun = (form_name, klass, parent)->->
@@ -74,14 +65,14 @@ _make_autorun = (form_name, klass, parent)->->
             id = x
         else
             id = ''
-        #[id, jex] = _str_xsplit(Session.get(parent+'_object_id'))
+
         x = Session.get(form_name+'_object_id')
         if typeof x == 'string'
             path = x.split('.')
         else
-            path = x._path
+            path = x._path.split('.')
             initial = x._initial
-            #[path, initial] = _str_xsplit(Session.get(form_name+'_object_id'))        
+
     else
         x = Session.get(form_name+'_object_id')
         if typeof x == 'string'
@@ -104,7 +95,10 @@ _make_autorun = (form_name, klass, parent)->->
         if obj            
             obj = _obj_from_path(obj, path)
             obj._path = path
-            Session.set(form_name+'_object', klass.constructor(obj))
+            if _.isEqual(obj, {_id: obj._id, _path:path})
+                Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
+            else
+                Session.set(form_name+'_object', klass.constructor(obj))         
         else            
             #I have doubts about this line
             Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))         
@@ -119,7 +113,7 @@ _dirty = (form_name) ->
 
 _invisible = (parent) ->
     ->
-        if Session.get(parent+'_object_id') == ''
+        if Session.get(parent+'_object_id') == '' or _.isObject(Session.get(parent+'_object_id'))
             "invisible"
         else
             ""
