@@ -56,24 +56,38 @@ _obj_from_path = (obj, path) ->
     obj._id = id
     obj
     
-_str_xsplit = (txt) ->
-    json_exp = _.strRight(txt, '.{')
-    if json_exp == txt
-        id_path = txt
-        json_exp = ""
-    else
-        json_exp = "{" + json_exp
-        id_path = _.strLeft(txt, '.{')   
-    return [id_path, json_exp]
+#_str_xsplit = (txt) ->
+#    json_exp = _.strRight(txt, '.{')
+#    if json_exp == txt
+#        id_path = txt
+#        json_exp = ""
+#    else
+#        json_exp = "{" + json_exp
+#        id_path = _.strLeft(txt, '.{')   
+#    return [id_path, json_exp]
     
 #subscribe to the channel of the form_object_id and respective findOne    
 _make_autorun = (form_name, klass, parent)->->
     if parent isnt null
-        [id, jex] = _str_xsplit(Session.get(parent+'_object_id'))
-        [path, initial] = _str_xsplit(Session.get(form_name+'_object_id'))
-        path = path.split('.')
+        x = Session.get(parent+'_object_id')
+        if typeof x == 'string'
+            id = x
+        else
+            id = ''
+        #[id, jex] = _str_xsplit(Session.get(parent+'_object_id'))
+        x = Session.get(form_name+'_object_id')
+        if typeof x == 'string'
+            path = x.split('.')
+        else
+            path = x._path
+            initial = x._initial
+            #[path, initial] = _str_xsplit(Session.get(form_name+'_object_id'))        
     else
-        [id, initial] = _str_xsplit(Session.get(form_name+'_object_id'))        
+        x = Session.get(form_name+'_object_id')
+        if typeof x == 'string'
+            id = x
+        else
+            [id, initial] = ['', x]
         path = []
   
         

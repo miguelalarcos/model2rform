@@ -30,7 +30,7 @@ describe 'test make autorun', ->
     
     it 'without path should findOne with _id = 0', ->
         A._collection.findOne.returns({_id: '0', a:8})
-        session.set('form1_object_id', '0.')
+        session.set('form1_object_id', '0')
         make_autorun('form1', A, null)()
         obj = session.get('form1_object')        
         b = _.isEqual(obj, {_id:'0', _path:[], _dirty: [],  a:8, _error_a:'', _error_b : ''})
@@ -39,7 +39,7 @@ describe 'test make autorun', ->
         
     it 'without path should not findOne', ->
         A._collection.findOne.returns(null)
-        session.set('form1_object_id', '.demo')
+        session.set('form1_object_id', {b: 1})
         make_autorun('form1', A, null)()
         obj = session.get('form1_object')     
         b = _.isEqual(obj, {_id:'', _path:[], _dirty: ['b'],  _error_a:'It is required', _error_b : '', b:1})
@@ -48,8 +48,8 @@ describe 'test make autorun', ->
         
     it 'with path should findOne with _id=0.n.0', ->
         B._collection.findOne.returns({_id: '0', a:8, n:[{x:0}]})
-        session.set('form1_object_id', 'n.0.')
-        session.set('parent_object_id', '0.')
+        session.set('form1_object_id', 'n.0')
+        session.set('parent_object_id', '0')
         make_autorun('form1', B, 'parent')()
         obj = session.get('form1_object')  
         b = _.isEqual(obj, {_id:'0', _path:['n','0'], _dirty: [],  x:0, _error_x:'', _error_y : ''})
@@ -59,8 +59,8 @@ describe 'test make autorun', ->
         
     it 'with path should findOne with _id=0.n', ->
         B._collection.findOne.returns({_id: '0', a:8, n:{x:0}})
-        session.set('form1_object_id', 'n.')
-        session.set('parent_object_id', '0.')
+        session.set('form1_object_id', 'n')
+        session.set('parent_object_id', '0')
         make_autorun('form1', B, 'parent')()
         obj = session.get('form1_object')  
         b = _.isEqual(obj, {_id:'0', _path:['n'], _dirty: [],  x:0, _error_x:'', _error_y : ''})

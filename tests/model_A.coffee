@@ -35,7 +35,6 @@ class A extends Model
     @_form_name : 'form'
     @_attrs : ['a','b']
     @_nested_arrays : ['n']
-    @_initials = {'demo': {'b':1}}
     
 exports.A = A    
 exports.B = B

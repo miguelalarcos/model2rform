@@ -19,12 +19,12 @@ class Model
     @constructor: (obj, initials=false)->
         obj._dirty = []
         if initials
-            json_exp = JSON.parse(initials)
+            #json_exp = JSON.parse(initials)
 
-            for attr of json_exp
-                value = json_exp[attr]                
-                if attr in @_dates
-                    value = new Date(value)
+            for attr of initials#json_exp
+                value = initials[attr] #json_exp[attr]                
+                #if attr in @_dates
+                #    value = new Date(value)
                 obj[attr] = value
                 obj._dirty.push(attr)
         for attr in @_attrs        

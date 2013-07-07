@@ -24,7 +24,7 @@ describe 'test save object', ->
         obj = {_path:[], _dirty:["a"], a: 8, b: 9}
         A.save(obj, 'form')
         A._collection.insert.calledWith({a: 8, n: []}).should.be.ok
-        b = _.isEqual(session._container, {form_object_id: '0.'})
+        b = _.isEqual(session._container, {form_object_id: '0'})
         b.should.be.ok
         
     it 'should save {_path:[], _id:"0", dirty["a"], a:8, b:9} with update', ->
