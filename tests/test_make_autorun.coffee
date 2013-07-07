@@ -12,7 +12,7 @@ m = require './fake_utils'
 Session = m.Session
 Meteor=m.Meteor
 session = new Session()   
-dct = {Session: session,Meteor: Meteor}
+dct = {Session: session,Meteor: Meteor,_:_}
 
 m = SandboxedModule.require('../make_form', 
                             globals: dct
@@ -37,7 +37,7 @@ describe 'test make autorun', ->
         
         b.should.be.ok
         
-    it 'without path should not findOne', ->
+    it 'without path should not findOne with initial', ->
         A._collection.findOne.returns(null)
         session.set('form1_object_id', {b: 1})
         make_autorun('form1', A, null)()
@@ -50,20 +50,40 @@ describe 'test make autorun', ->
         B._collection.findOne.returns({_id: '0', a:8, n:[{x:0}]})
         session.set('form1_object_id', 'n.0')
         session.set('parent_object_id', '0')
-        make_autorun('form1', B, 'parent')()
+        make_autorun('form1', B, 'parent', 'n.0')()
         obj = session.get('form1_object')  
         b = _.isEqual(obj, {_id:'0', _path:['n','0'], _dirty: [],  x:0, _error_x:'', _error_y : ''})
 
         b.should.be.ok
         B._collection.findOne.calledWith({_id: '0'})
         
+    it 'with path should findOne with _id=0.n.-1 and initial', ->
+        B._collection.findOne.returns({_id: '0', a:8, n:[{x:0}]})
+        session.set('form1_object_id', {x:8})
+        session.set('parent_object_id', '0')
+        make_autorun('form1', B, 'parent', 'n.-1')()
+        obj = session.get('form1_object')  
+        b = _.isEqual(obj, {_id:'0', _path:['n','-1'], _dirty: ['x'],  x:8, _error_x:'', _error_y : ''})
+
+        b.should.be.ok
+
     it 'with path should findOne with _id=0.n', ->
         B._collection.findOne.returns({_id: '0', a:8, n:{x:0}})
         session.set('form1_object_id', 'n')
         session.set('parent_object_id', '0')
-        make_autorun('form1', B, 'parent')()
+        make_autorun('form1', B, 'parent','n')()
         obj = session.get('form1_object')  
         b = _.isEqual(obj, {_id:'0', _path:['n'], _dirty: [],  x:0, _error_x:'', _error_y : ''})
 
         b.should.be.ok     
     
+    it 'with path should findOne with _id=0.n and initial', ->
+        B._collection.findOne.returns({_id: '0', a:8 })
+        session.set('form1_object_id', {x:8})
+        session.set('parent_object_id', '0')
+        make_autorun('form1', B, 'parent','n')()
+        obj = session.get('form1_object')  
+        console.log(obj)
+        b = _.isEqual(obj, {_id:'0', _path:['n'], _dirty: ['x'],  x:8, _error_x:'', _error_y : ''})
+
+        b.should.be.ok  

@@ -9,7 +9,7 @@ session = m.session
 m = require './fake_utils'
 Meteor=m.Meteor
 
-dct = {Session: session,Meteor: Meteor}
+dct = {Session: session,Meteor: Meteor,_:_}
 
 m = SandboxedModule.require('../make_form', 
                             globals: dct

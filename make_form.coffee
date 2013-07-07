@@ -58,7 +58,7 @@ _obj_from_path = (obj, path) ->
     
     
 #subscribe to the channel of the form_object_id and respective findOne    
-_make_autorun = (form_name, klass, parent)->->
+_make_autorun = (form_name, klass, parent, path_)->->
     if parent isnt null
         x = Session.get(parent+'_object_id')
         if typeof x == 'string'
@@ -66,13 +66,11 @@ _make_autorun = (form_name, klass, parent)->->
         else
             id = ''
 
-        x = Session.get(form_name+'_object_id')
-        if typeof x == 'string'
-            path = x.split('.')
-        else
-            path = x._path.split('.')
-            initial = x._initial
-
+        path = path_.split('.')
+        initial = Session.get(form_name+'_object_id')
+        if typeof initial == 'string'
+            path = initial.split('.')
+            initial = {}
     else
         x = Session.get(form_name+'_object_id')
         if typeof x == 'string'
@@ -83,8 +81,10 @@ _make_autorun = (form_name, klass, parent)->->
   
         
     Meteor.subscribe(form_name+"_x_id", id)
-    
-    obj = klass._collection.findOne({_id: id})
+    if id == ''
+        obj = null
+    else
+        obj = klass._collection.findOne({_id: id})
     if path.length == 0        
         if obj
             obj._path = []
@@ -132,13 +132,13 @@ _disabled = (form_name, klass) ->
 make_form = (template, form_name, klass, for_rendered=null, parent=null, path=null)->
     
     if not path
-        Session.set(form_name+'_object_id', '')
-    else
-        Meteor.autorun ->
-            Session.get(parent+'_object_id')
-            Session.set(form_name+'_object_id', path)
-        
-    Meteor.autorun _make_autorun(form_name, klass, parent)    
+        Session.set(form_name+'_object_id', {})
+    #else
+    #    Meteor.autorun ->
+    #        Session.get(parent+'_object_id')
+            #Session.set(form_name+'_object_id', '')#path)
+
+    Meteor.autorun _make_autorun(form_name, klass, parent, path)    
    
     template.objeto = -> 
         Session.get(form_name+'_object')
