@@ -18,6 +18,7 @@ class Model
     # it will set up the _error_attr attributes
     @constructor: (obj, initials=false)->
         obj._dirty = []
+        #obj._valid = true
         if initials
             console.log(initials)
             for attr of initials
@@ -137,8 +138,9 @@ class Model
                     for na in @._nested_arrays
                         dct_aux[na] = []    
                 dct = {}
-                dct[path] = dct_aux
+                dct[path] = dct_aux 
                 @_collection.update({_id: obj._id}, {$push: dct })
+                Session.set(form_name+'_object_id', lista.length.toString())
             else
                 path = obj._path.join('.')
                 dct_aux = {}

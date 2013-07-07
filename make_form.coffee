@@ -132,7 +132,7 @@ _disabled = (form_name, klass) ->
         ''
             
 # This is what the client must use        
-make_form = (template, form_name, klass, for_rendered=null, parent=null, path=null)->
+make_form = (template, form_name, klass, parent=null, path=null)->
     
     if not path
         Session.set(form_name+'_object_id', {})
@@ -189,28 +189,28 @@ make_form = (template, form_name, klass, for_rendered=null, parent=null, path=nu
             ''
     #Meteor.startup ->
     template.rendered= -> #don't know why, but next events don't work ok if defined in template.events
-        #$('.'+form_name+'_attr_date').datepicker(format: 'dd-mm-yyyy', autoclose:true)
+        for_rendered = klass._for_rendered
         for d of for_rendered['date']
-            $(d).datepicker(format: for_rendered['date'][d], autoclose:true)
+            d_ = '#'+form_name+' input[name='+d+']'
+            $(d_).datepicker(format: for_rendered['date'][d], autoclose:true)
         $('.'+form_name+'_attr_date').on('changeDate', _on_change_generic(form_name,klass))
 
         for dt of for_rendered['datetime']
-            $(dt).datetimepicker(format: for_rendered['datetime'][dt], autoclose:true)
+            dt_ = '#'+form_name+' input[name="'+dt+'"]'
+            $(dt_).datetimepicker(format: for_rendered['datetime'][dt], autoclose:true)
         #$('.'+form_name+'_attr_datetime').datetimepicker(format: 'dd-mm-yyyy hh:ii:ss', autoclose:true)
         $('.'+form_name+'_attr_datetime').on('changeDate', _on_change_generic(form_name,klass))   
         $('.'+form_name+'_attr_autocomplete').on('change', _on_change_generic(form_name,klass))
         $('.'+form_name+'_attr_autocomplete').on('input', _on_change_generic(form_name,klass))
 
         for ac of for_rendered['autocomplete']
-            #channel = for_rendered['autocomplete'][ac][0]
-            #attr = for_rendered['autocomplete'][ac][1]
-            #collection = for_rendered['autocomplete'][ac][2]
-            [channel, attr, collection] = for_rendered['autocomplete'][ac]
+            [channel, attr, collection] = JSON.parse(for_rendered['autocomplete'][ac])
             Meteor.subscribe(channel)
-            make_autocomplete ac, attr, collection
+            target_id = '#'+form_name+' input[name='+ac+']'  
+            make_autocomplete target_id, attr, window[collection]
         
-make_autocomplete =  (target_id, attr, collection) ->     
-    $(target_id).typeahead
+make_autocomplete =  (target, attr, collection) ->   
+    $(target).typeahead
         source : (q,p)->    
             dct = {}
             dct[attr] = {$regex: ".*"+q+".*"}

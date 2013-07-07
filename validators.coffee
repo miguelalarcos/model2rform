@@ -44,6 +44,7 @@ string_array = (x) ->
 date = (format) ->
     (x) ->
         if Meteor.isClient
+            console.log(x, format)
             x = moment(x, format)
             if x.isValid()
                 x
