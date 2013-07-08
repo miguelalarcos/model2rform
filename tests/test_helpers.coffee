@@ -52,7 +52,6 @@ describe 'test template helpers', ->
     it "disabled helper should return 'disabled' when (len of dirty == 0)", ->
         disabled = _disabled('form', A)   
         obj = A.constructor({_id:0, a:8, b:0}) 
-        obj._dirty = [] #because of _valid
         session.set('form_object', obj)  
 
         disabled().should.eql('disabled')
