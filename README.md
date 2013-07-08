@@ -86,13 +86,13 @@ order_C = (('a', 'A'), ('b', 'B'))
 order_A = (('ac', 'Autocomplete'), ('i', 'Integer'), ('f', 'Float'), ('c', 'Computed'), ('b', 'Boolean'), ('s', 'String'), ('d', 'Date'), ('dt', 'Datetime'), ('ss', 'String-select'), ('t', 'Text'), ('sa','StringArray'))
 
 make_all([
-    [B, 'B', order_B],
-    [C, 'C', order_C],
-    [A, 'A', order_A]
+    [B, 'B', order_B, {}],
+    [C, 'C', order_C, {}],
+    [A, 'A', order_A, {'t': 'rows="10"'}]
     ])
 ```
 
-We pass the models in the order of dependencies. *A* needs *B* and *C*, so these go first. The second argument of each row is the name of the form. You have to remember it because later you will use it. In the third argument of each row we pass an order and display tuple.
+We pass the models in the order of dependencies. *A* needs *B* and *C*, so these go first. The second argument of each row is the name of the form. You have to remember it because later you will use it. In the third argument of each row we pass an order and display tuple. The next one are properties to he html element.
 
 ---
 

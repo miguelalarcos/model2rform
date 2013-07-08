@@ -4,13 +4,17 @@ _on_change_generic = (form_name, klass) -> (e,t) ->
     _on_change(form_name, klass, name, value)
 
 _on_change_bool = (form_name, klass) -> (e,t) ->
+    rotate_checkbox(e.target)
     name = $(e.target).attr('name')
-    value = $(e.target).is(':checked')    
+    value = $(e.target).is(':checked')   
+
+    if $(e.target).data('checked') == 1
+        value = null 
     _on_change(form_name, klass, name, value)
     
 _on_change = (form_name, klass, name, value) ->
     obj = Session.get(form_name+'_object')
-    
+    console.log('name, value', name, value)
     if name not in obj._dirty
         obj._dirty.push(name)
     try
@@ -27,6 +31,21 @@ _on_change = (form_name, klass, name, value) ->
     obj[name] = value
     Session.set(form_name+'_object', obj)    
     
+rotate_checkbox = (cb) ->
+    el = $(cb)
+    data = el.data('checked')
+    switch data
+        when 2
+            el.data('checked',0)
+            el.prop('indeterminate',false)
+            el.prop('checked',false)
+        when 1
+            el.data('checked',2)
+            el.prop('indeterminate',false)
+            el.prop('checked',true)
+        when 0
+            el.data('checked',1)
+            el.prop('indeterminate',true)            
 
 #setup the events like typing in the boxes, enter in the search box, ...
 make_form_events = (form_name, klass) ->
@@ -37,7 +56,6 @@ make_form_events = (form_name, klass) ->
         obj = Session.get(form_name+'_object')         
         klass.save(obj, form_name)   
         
-            
     dct['input .'+form_name+'_attr'] = _on_change_generic(form_name, klass)    
     dct['change .'+form_name+'_attr_bool'] = _on_change_bool(form_name, klass)
     dct['change .'+form_name+'_attr_select'] = _on_change_generic(form_name, klass)
@@ -138,11 +156,7 @@ make_form = (template, form_name, klass, parent=null, path=null)->
     
     if not path
         Session.set(form_name+'_object_id', {})
-    #else
-    #    Meteor.autorun ->
-    #        Session.get(parent+'_object_id')
-            #Session.set(form_name+'_object_id', '')#path)
-
+    
     Meteor.autorun _make_autorun(form_name, klass, parent, path)    
    
     template.objeto = -> 
@@ -162,7 +176,12 @@ make_form = (template, form_name, klass, parent=null, path=null)->
             'selected'
         else
             ''
-            
+    template.map_null = (value) ->
+        if value is null            
+            ''        
+        else
+            value
+
     template.disabled = _disabled(form_name, klass)            
         
     template.events make_form_events(form_name, klass)
@@ -188,28 +207,35 @@ make_form = (template, form_name, klass, parent=null, path=null)->
         if value
             'checked'
         else
-            ''
-    #Meteor.startup ->
-    template.rendered= -> #don't know why, but next events don't work ok if defined in template.events
-        for_rendered = klass._for_rendered
-        for d of for_rendered['date']
-            d_ = '#'+form_name+' input[name='+d+']'
-            $(d_).datepicker(format: for_rendered['date'][d], autoclose:true)
-        $('.'+form_name+'_attr_date').on('changeDate', _on_change_generic(form_name,klass))
+            ''    
+    yet_rendered = false
 
-        for dt of for_rendered['datetime']
-            dt_ = '#'+form_name+' input[name="'+dt+'"]'
-            $(dt_).datetimepicker(format: for_rendered['datetime'][dt], autoclose:true)
-        #$('.'+form_name+'_attr_datetime').datetimepicker(format: 'dd-mm-yyyy hh:ii:ss', autoclose:true)
-        $('.'+form_name+'_attr_datetime').on('changeDate', _on_change_generic(form_name,klass))   
-        $('.'+form_name+'_attr_autocomplete').on('change', _on_change_generic(form_name,klass))
-        $('.'+form_name+'_attr_autocomplete').on('input', _on_change_generic(form_name,klass))
+    template.rendered= -> #don't know why, but next events don't work ok if defined in template.events        
+        if not yet_rendered
+            yet_rendered = true
+            $('input[type=checkbox]').data('checked',0)
+            for_rendered = klass._for_rendered
+            for d of for_rendered['date']
+                d_ = '#'+form_name+' input[name='+d+']'
+                $(d_).datepicker(format: for_rendered['date'][d], autoclose:true)
+            selector = '.'+form_name+'_attr_date'
+            $(selector).on('changeDate', _on_change_generic(form_name,klass))
 
-        for ac of for_rendered['autocomplete']
-            [channel, attr, collection] = JSON.parse(for_rendered['autocomplete'][ac])
-            Meteor.subscribe(channel)
-            target_id = '#'+form_name+' input[name='+ac+']'  
-            make_autocomplete target_id, attr, window[collection]
+            for dt of for_rendered['datetime']
+                dt_ = '#'+form_name+' input[name="'+dt+'"]'
+                $(dt_).datetimepicker(format: for_rendered['datetime'][dt], autoclose:true)
+            selector = '.'+form_name+'_attr_datetime'
+            $(selector).on('changeDate', _on_change_generic(form_name,klass))   
+
+            selector = '.'+form_name+'_attr_autocomplete'        
+            $(selector).on('change', _on_change_generic(form_name,klass))
+            $(selector).on('input', _on_change_generic(form_name,klass))
+
+            for ac of for_rendered['autocomplete']
+                [channel, attr, collection] = JSON.parse(for_rendered['autocomplete'][ac])
+                Meteor.subscribe(channel)
+                target_id = '#'+form_name+' input[name='+ac+']'  
+                make_autocomplete target_id, attr, window[collection]
         
 make_autocomplete =  (target, attr, collection) ->   
     $(target).typeahead

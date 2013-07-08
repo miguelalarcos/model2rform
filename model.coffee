@@ -16,15 +16,15 @@ class Model
     @_path: null # ver si lo utilizo o no
     
     # it will set up the _error_attr attributes
-    @constructor: (obj, initials=false)->
-        obj._dirty = ['_valid']
-        obj._valid = true
+    @constructor: (obj, initials=false)->                
         if not _.has(obj, '_path')
             obj._path = []
+        #for attr in @_attrs
+        #    obj[attr] = null
+        obj._valid = true
+        obj._dirty = ['_valid']
         if initials
-            console.log(initials)
             for attr of initials
-                console.log(attr)
                 value = initials[attr]                 
                 obj[attr] = value
                 obj._dirty.push(attr)
@@ -43,7 +43,7 @@ class Model
         obj._dirty.push('_valid')
 
     @validate : (obj, id) ->
-        
+        console.log('validate', obj, id)
         if _.isEmpty(obj)
             return false
         
@@ -77,6 +77,7 @@ class Model
                         for func in klass[v][1..]
                             func(val)                        
                     catch error
+                        console.log('catch', error)
                         return false
                     if not ok_for_requireds
                         ok_for_requireds = true

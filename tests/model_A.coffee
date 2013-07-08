@@ -20,20 +20,23 @@ SubModel = model.model.SubModel
 integer = validators.validators.integer
 required = validators.validators.required
 nested = validators.validators.nested
+boolean = validators.validators.boolean
 
 class B extends SubModel
+    @_valid : [boolean]
     @x : [integer, required]
     @y : [integer]
-    @_attrs :['x', 'y']  
+    @_attrs :['x', 'y', '_valid']  
     @nn : [nested(B)]
     @_nested_arrays : ['nn'] 
     
 class A extends Model
+    @_valid : [boolean]
     @a : [integer, required]
     @b : [integer]
     @n : [nested(B)]
     @_form_name : 'form'
-    @_attrs : ['a','b']
+    @_attrs : ['a','b','_valid']
     @_nested_arrays : ['n']
     
 exports.A = A    

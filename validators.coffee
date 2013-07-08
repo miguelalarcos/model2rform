@@ -4,6 +4,8 @@ boolean = (x) ->
         x
     else
         if not (typeof x == 'boolean')
+            if x is null
+                return x
             throw "The value must be a boolean"
         x
     
@@ -71,10 +73,13 @@ integer = (x) ->
             else
                 parseInt(x)
         else
-            ''
+            null
     else
         if not (typeof x == 'number')
+            if x is null
+                return null
             throw "Must be an integer"
+        
         Math.round(x)
 
 float = (x) ->
@@ -86,10 +91,13 @@ float = (x) ->
             else
                 parseFloat(x)        
         else
-            ''
+            null
     else
         if not (typeof x == 'number')
-            throw "Must be an float"
+            if x is null
+                return null
+            console.log(x, "Must be a float")            
+            throw "Must be a float"
         x
         
 # check if is null (and equivalents)        
@@ -98,14 +106,20 @@ required = (x) ->
         throw "It is required"    
  
 min = (limit) ->
-    (x) -> #check if x >= limit, then ok
+    (x) -> 
+        if x is null
+            return
         if x < limit
+            console.log(x, "Value must be greater-equal than " + limit)
             throw "Value must be greater-equal than " + limit
         
 
 max = (limit) ->
     (x) ->
+        if x is null
+            return
         if x > limit
+            console.log(x, "Value must be less-equal than " + limit)
             throw "Value must be less-equal than " + limit
         
 smin = (limit) ->
@@ -160,7 +174,7 @@ email = (x) ->
 
 string_select = (list) ->
     (x) ->        
-        if x not in list
+        if x not in list and x != ''
             throw "Value must be in the list"
         x
 
