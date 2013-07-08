@@ -47,13 +47,14 @@ make_form_events = (form_name, klass) ->
     #dct['input .'+form_name+'_attr_autocomplete'] = _on_change_generic(form_name, klass)
     dct
     
-_obj_from_path = (obj, path) ->
+obj_from_path = (obj, path) ->
     id = obj._id
     for v in path
         obj = obj[v]
     if not obj
         obj = {}
     obj._id = id
+    obj._path = path #
     obj
     
     
@@ -95,8 +96,8 @@ _make_autorun = (form_name, klass, parent, path)->->
             Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=initial))            
     else
         if obj            
-            obj = _obj_from_path(obj, path_)
-            obj._path = path_
+            obj = obj_from_path(obj, path_)
+            #obj._path = path_
             if _.isEqual(obj, {_id: obj._id, _path:path_})
                 Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
             else
@@ -127,7 +128,8 @@ _disabled = (form_name, klass) ->
             if obj['_error_'+attr] != ''
                 return 'disabled'
         
-        if obj._dirty.length == 0            
+        #if obj._dirty.length == 0            
+        if _.isEqual(obj._dirty, ['_valid'])
             return 'disabled'
         ''
             
@@ -223,10 +225,11 @@ make_autocomplete =  (target, attr, collection) ->
 
 @model2rform_make_form =
     make_form: make_form
+    obj_from_path: obj_from_path
 
 if typeof exports != 'undefined'    
     exports.make_form =             
-        _obj_from_path : _obj_from_path
+        obj_from_path : obj_from_path
         _make_autorun : _make_autorun        
         _dirty : _dirty
         _invisible : _invisible

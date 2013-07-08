@@ -17,8 +17,10 @@ class Model
     
     # it will set up the _error_attr attributes
     @constructor: (obj, initials=false)->
-        obj._dirty = []
-        #obj._valid = true
+        obj._dirty = ['_valid']
+        obj._valid = true
+        if not _.has(obj, '_path')
+            obj._path = []
         if initials
             console.log(initials)
             for attr of initials
@@ -36,6 +38,10 @@ class Model
                 obj['_error_'+attr] = error        
         obj
     
+    @setInvalid : (obj) ->
+        obj._valid = false
+        obj._dirty.push('_valid')
+
     @validate : (obj, id) ->
         
         if _.isEmpty(obj)

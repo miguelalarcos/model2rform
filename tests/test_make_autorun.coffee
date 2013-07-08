@@ -33,7 +33,7 @@ describe 'test make autorun', ->
         session.set('form1_object_id', '0')
         make_autorun('form1', A, null)()
         obj = session.get('form1_object')        
-        b = _.isEqual(obj, {_id:'0', _path:[], _dirty: [],  a:8, _error_a:'', _error_b : ''})
+        b = _.isEqual(obj, {_id:'0', _path:[], _dirty: ['_valid'], _valid:true, a:8, _error_a:'', _error_b : ''})
         
         b.should.be.ok
         
@@ -42,7 +42,7 @@ describe 'test make autorun', ->
         session.set('form1_object_id', {b: 1})
         make_autorun('form1', A, null)()
         obj = session.get('form1_object')     
-        b = _.isEqual(obj, {_id:'', _path:[], _dirty: ['b'],  _error_a:'It is required', _error_b : '', b:1})
+        b = _.isEqual(obj, {_id:'', _path:[], _dirty: ['_valid', 'b'], _valid:true, _error_a:'It is required', _error_b : '', b:1})
         
         b.should.be.ok    
         
@@ -52,7 +52,8 @@ describe 'test make autorun', ->
         session.set('parent_object_id', '0')
         make_autorun('form1', B, 'parent', 'n.0')()
         obj = session.get('form1_object')  
-        b = _.isEqual(obj, {_id:'0', _path:['n','0'], _dirty: [],  x:0, _error_x:'', _error_y : ''})
+        console.log('obj',obj)
+        b = _.isEqual(obj, {_id:'0', _path:['n','0'], _dirty: ['_valid'], _valid:true, x:0, _error_x:'', _error_y : ''})
 
         b.should.be.ok
         B._collection.findOne.calledWith({_id: '0'})
@@ -63,7 +64,7 @@ describe 'test make autorun', ->
         session.set('parent_object_id', '0')
         make_autorun('form1', B, 'parent', 'n.-1')()
         obj = session.get('form1_object')  
-        b = _.isEqual(obj, {_id:'0', _path:['n','-1'], _dirty: ['x'],  x:8, _error_x:'', _error_y : ''})
+        b = _.isEqual(obj, {_id:'0', _path:['n','-1'], _dirty: ['_valid', 'x'], _valid: true, x:8, _error_x:'', _error_y : ''})
 
         b.should.be.ok
 
@@ -73,7 +74,7 @@ describe 'test make autorun', ->
         session.set('parent_object_id', '0')
         make_autorun('form1', B, 'parent','n')()
         obj = session.get('form1_object')  
-        b = _.isEqual(obj, {_id:'0', _path:['n'], _dirty: [],  x:0, _error_x:'', _error_y : ''})
+        b = _.isEqual(obj, {_id:'0', _path:['n'], _dirty: ['_valid'], _valid:true, x:0, _error_x:'', _error_y : ''})
 
         b.should.be.ok     
     
@@ -84,6 +85,6 @@ describe 'test make autorun', ->
         make_autorun('form1', B, 'parent','n')()
         obj = session.get('form1_object')  
         console.log(obj)
-        b = _.isEqual(obj, {_id:'0', _path:['n'], _dirty: ['x'],  x:8, _error_x:'', _error_y : ''})
+        b = _.isEqual(obj, {_id:'0', _path:['n'], _dirty: ['_valid', 'x'], _valid:true, x:8, _error_x:'', _error_y : ''})
 
         b.should.be.ok  
