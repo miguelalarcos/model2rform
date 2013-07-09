@@ -61,20 +61,20 @@ Let's see the other models:
 class B(SubModel):
     _collection = 'myCollection'
     x = [integer, required]
-    y = [integer]
+    y = boolean
 
 class C(SubModel):
     _collection = 'myCollection'
-    a = [integer]
-    b = [integer]
+    a = integer
+    b = integer
 
 ```
 
 The only important thing is that they extend from SubModel. Well, we are in disposition of explain the nested objects of the first model:
 
 ```python
-n = [nested('B')]
-na = [nested_array('C')]
+n = nested('B')
+na = nested_array('C')
 ```
 
 *n* is an nested object of model *B*. *na* is an array of objects of model *C*. They are not considered attributes of model *A*. Note that the validations are made inside classes *B* and *C*, and not here in *A*.
@@ -112,7 +112,7 @@ make_form.make_form  Template.B, 'B', B, 'A', 'n'
 make_form.make_form  Template.C, 'C', C, 'A', 'na.-1'
 ```
 
-We also pass the parent form and the path. In case of array, indicating -1, which means that the subform will push an object to the array. When we change the path to something like na.0, then save will save to the position 0 of the array.
+We also pass the parent form and the path. In case of array, indicating -1, which means that the subform will push an object to the array. When we change the path to something like na.0, then command save will save to the position 0 of the array.
 
 ---
 
@@ -141,7 +141,7 @@ Note that we don't call from the objet but from de class: *A.validate(dct, ...*.
 I think that the reference case is very interesting. Let's explain it a bit:
 
 ```python
-ac = [references('clientsCollection','name','all_clients')]
+ac = references('clientsCollection','name','all_clients')
 ```
 
 It means that the value displayed references unique attribute *name* of collection clientsCollection, and ac stores de _id. In other words:
@@ -159,14 +159,14 @@ When make_form is called, two important Session vars are created:
 
 * form_name + '\_object_id': 
     * form: the _id of the object mapped with the form or an object of initial values.
-    * subform: path to the subobject or an object of initial values.
+    * subform: index array to the subobject or an object of initial values.
 * form_name + '\_object': the object mapped with the form
 
 (Automatically it is made the subscribe to the chanel *form_name\_x\_id*, that publishes the element with the given *\_id*.)
 
 There's one reason to map to an object rather than to Mongo directly. It is because while typing in one box, another field can be computed based in that box.
 
-You set the *form\_name\_object\_id*, and then *form\_name\_object* is calculated with a findOne. This is the code:
+You set the *form\_name\_object\_id*, and then *form\_name\_object* is calculated. This is the code:
 
 ```coffee-script
 _make_autorun = (form_name, klass, parent, path)->->
@@ -190,9 +190,7 @@ _make_autorun = (form_name, klass, parent, path)->->
             id = ''
             initial = x
         path_ = []
-  
-        
-    #Meteor.subscribe(form_name+"_x_id", id)
+          
     if id == ''
         obj = null
     else
@@ -207,14 +205,12 @@ _make_autorun = (form_name, klass, parent, path)->->
     else
         if obj            
             obj = obj_from_path(obj, path_)
-            #obj._path = path_
             if _.isEqual(obj, {_id: obj._id, _path:path_})
                 Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
             else
                 Session.set(form_name+'_object', klass.constructor(obj))         
         else            
-            #I have doubts about this line
-            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))             
+            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))                      
 ```
 
 In case of form, you can set the form_name_object_id with an _id or with an object of initial values. In the first case, a findOne will be done and the object retrieved is populated. The subforms are visible and ready to modify the data. In the second case, an object with initial values is populated, pending to be inserted. The subforms are hidden till the form is inserted.

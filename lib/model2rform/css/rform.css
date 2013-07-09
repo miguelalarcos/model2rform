@@ -12,4 +12,15 @@
     font-weight: bold;
     border-radius: 5px;
     border-color: Gainsboro;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+
+.delete {
+    display: none;
+}
+
+li:hover .delete{
+    display: inline-block;
 }

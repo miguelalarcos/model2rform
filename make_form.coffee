@@ -1,6 +1,6 @@
-checked = "\u2612"
-unchecked = "\u2610"
-indeterminate = "\u268B"
+checked = "x"#\u2612"
+unchecked = " "#\u2610"
+indeterminate = "--"#\u268B"
 
 _on_change_generic = (form_name, klass) -> (e,t) ->
     name = $(e.target).attr('name')
@@ -36,15 +36,10 @@ rotate_checkbox = (cb) ->
     data = el.text()
     switch data
         when indeterminate
-            #el.text(unchecked)
-            return false
-            
+            return false            
         when unchecked
-            #el.text(checked)
-            return true            
-            
+            return true                        
         else
-            #el.text(indeterminate)
             return null           
                         
 
@@ -59,7 +54,6 @@ make_form_events = (form_name, klass) ->
         
     dct['input .'+form_name+'_attr'] = _on_change_generic(form_name, klass)    
     dct['click .'+form_name+'_attr_bool'] = _on_change_bool(form_name, klass)
-    #dct['change input:checkbox'] = _on_change_bool(form_name, klass)
     dct['change .'+form_name+'_attr_select'] = _on_change_generic(form_name, klass)
     #these don't work, so I must do where template.rendered with jquery 'on'
     #dct['changeDate .'+form_name+'_attr_date'] = _on_change_generic(form_name, klass)
@@ -204,14 +198,15 @@ make_form = (template, form_name, klass, parent=null, path=null)->
             fecha = moment(fecha)
             fecha.format(format)
                   
-    template.is_checked = (value) ->
-        
+    template.checked = (value) ->        
         if value is null or value is undefined
             return indeterminate
         if value
             checked
         else
             unchecked
+
+
     yet_rendered = false
 
     template.rendered= -> #don't know why, but next events don't work ok if defined in template.events        
