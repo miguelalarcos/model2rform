@@ -43,7 +43,7 @@ class Model
         obj._dirty.push('_valid')
 
     @validate : (obj, id) ->
-        console.log('validate', obj, id)
+        
         if _.isEmpty(obj)
             return false
         

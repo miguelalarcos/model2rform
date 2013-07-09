@@ -5,3 +5,11 @@
 
 .dirty {border-color: yellow !important;}
 .invisible {display: none;}
+
+.label_checkbox {
+    border: 1px solid;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 5px;
+    border-color: Gainsboro;
+}

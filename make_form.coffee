@@ -1,15 +1,15 @@
+checked = "\u2612"
+unchecked = "\u2610"
+indeterminate = "\u268B"
+
 _on_change_generic = (form_name, klass) -> (e,t) ->
     name = $(e.target).attr('name')
     value = $(e.target).val()
     _on_change(form_name, klass, name, value)
 
 _on_change_bool = (form_name, klass) -> (e,t) ->
-    rotate_checkbox(e.target)
+    value = rotate_checkbox(e.target)
     name = $(e.target).attr('name')
-    value = $(e.target).is(':checked')   
-
-    if $(e.target).data('checked') == 1
-        value = null 
     _on_change(form_name, klass, name, value)
     
 _on_change = (form_name, klass, name, value) ->
@@ -30,22 +30,23 @@ _on_change = (form_name, klass, name, value) ->
         value = value.toDate()
     obj[name] = value
     Session.set(form_name+'_object', obj)    
-    
+   
 rotate_checkbox = (cb) ->
     el = $(cb)
-    data = el.data('checked')
+    data = el.text()
     switch data
-        when 2
-            el.data('checked',0)
-            el.prop('indeterminate',false)
-            el.prop('checked',false)
-        when 1
-            el.data('checked',2)
-            el.prop('indeterminate',false)
-            el.prop('checked',true)
-        when 0
-            el.data('checked',1)
-            el.prop('indeterminate',true)            
+        when indeterminate
+            #el.text(unchecked)
+            return false
+            
+        when unchecked
+            #el.text(checked)
+            return true            
+            
+        else
+            #el.text(indeterminate)
+            return null           
+                        
 
 #setup the events like typing in the boxes, enter in the search box, ...
 make_form_events = (form_name, klass) ->
@@ -57,7 +58,8 @@ make_form_events = (form_name, klass) ->
         klass.save(obj, form_name)   
         
     dct['input .'+form_name+'_attr'] = _on_change_generic(form_name, klass)    
-    dct['change .'+form_name+'_attr_bool'] = _on_change_bool(form_name, klass)
+    dct['click .'+form_name+'_attr_bool'] = _on_change_bool(form_name, klass)
+    #dct['change input:checkbox'] = _on_change_bool(form_name, klass)
     dct['change .'+form_name+'_attr_select'] = _on_change_generic(form_name, klass)
     #these don't work, so I must do where template.rendered with jquery 'on'
     #dct['changeDate .'+form_name+'_attr_date'] = _on_change_generic(form_name, klass)
@@ -89,7 +91,7 @@ _make_autorun = (form_name, klass, parent, path)->->
         initial = Session.get(form_name+'_object_id')
         if typeof initial == 'string'
             path_[path_.length-1] = initial
-            initial = {}
+            initial = {}        
     else
         x = Session.get(form_name+'_object_id')
         if typeof x == 'string'
@@ -145,8 +147,7 @@ _disabled = (form_name, klass) ->
         for attr in klass._attrs
             if obj['_error_'+attr] != ''
                 return 'disabled'
-        
-        #if obj._dirty.length == 0            
+                  
         if _.isEqual(obj._dirty, ['_valid'])
             return 'disabled'
         ''
@@ -204,16 +205,19 @@ make_form = (template, form_name, klass, parent=null, path=null)->
             fecha.format(format)
                   
     template.is_checked = (value) ->
+        
+        if value is null or value is undefined
+            return indeterminate
         if value
-            'checked'
+            checked
         else
-            ''    
+            unchecked
     yet_rendered = false
 
     template.rendered= -> #don't know why, but next events don't work ok if defined in template.events        
         if not yet_rendered
             yet_rendered = true
-            $('input[type=checkbox]').data('checked',0)
+            
             for_rendered = klass._for_rendered
             for d of for_rendered['date']
                 d_ = '#'+form_name+' input[name='+d+']'

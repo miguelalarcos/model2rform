@@ -156,15 +156,14 @@ references = (list, attr) ->
             else
                 throw "Value must be a valid Id."
 
-references_ = (list, attr, x) ->
-    ->
-        dct = {}
-        dct[attr] = x
-        
-        obj = list.findOne(dct)
-
-        if obj            
-            return obj._id
+reference_from_value = (list, attr, x) ->
+    dct = {}
+    dct[attr] = x
+    
+    obj = list.findOne(dct)
+    console.log('obj', obj)
+    if obj            
+        return obj._id
 
 email = (x) ->
     if x
@@ -194,8 +193,8 @@ string_select = (list) ->
     max: max
     smin: smin
     smax :smax
-    references: references
-    references_: references_
+    references: references    
+    reference_from_value: reference_from_value
     email: email
     string_select: string_select
     

@@ -11,18 +11,19 @@ class A(Model):
 
     i = [integer, required, min(5), max(10)]
     s = [string, email, smin(7), smax(10)]
-    #we must specify the format in momentjs and in datepicker
+    #we must specify both the momentjs format and the datepicker format
     d = [date('DD-MM-YYYY', 'dd-mm-yyyy')]
     dt = [datetime('DD-MM-YYYY HH:mm:ss', 'dd-mm-yyyy hh:ii:ss')]
     ss = [string_select(['red','yellow','green']), required]
     f = [float, min(-5.5), max(5.5)]
-    b = [boolean]
-    t = [text]
-    c = [computed('add_i_f')]
-    ac = [references('clientsCollection','name','all_clients')]
-    sa = [string_array]
-    n = [nested('B')]
-    na = [nested_array('C')]
+    #if there's no validation, we don't have to use the array style
+    b = boolean
+    t = text
+    c = computed('add_i_f')
+    ac = references('clientsCollection','name','all_clients')
+    sa = string_array
+    n = nested('B')
+    na = nested_array('C')
 ```
 
 We can say several things:
@@ -127,6 +128,7 @@ myCollection.allow
         return A.validate(doc, null)
         
     update: (userId, doc, fields, modifier)->  
+        #this is important, don't forget
         dct = model2rform_model.dct_from_modifier(modifier)                           
         if not A.validate(dct, doc._id)
             return false
@@ -179,7 +181,7 @@ _make_autorun = (form_name, klass, parent, path)->->
         initial = Session.get(form_name+'_object_id')
         if typeof initial == 'string'
             path_[path_.length-1] = initial
-            initial = {}
+            initial = {}        
     else
         x = Session.get(form_name+'_object_id')
         if typeof x == 'string'
@@ -188,7 +190,9 @@ _make_autorun = (form_name, klass, parent, path)->->
             id = ''
             initial = x
         path_ = []
-          
+  
+        
+    #Meteor.subscribe(form_name+"_x_id", id)
     if id == ''
         obj = null
     else
@@ -203,12 +207,14 @@ _make_autorun = (form_name, klass, parent, path)->->
     else
         if obj            
             obj = obj_from_path(obj, path_)
+            #obj._path = path_
             if _.isEqual(obj, {_id: obj._id, _path:path_})
                 Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
             else
                 Session.set(form_name+'_object', klass.constructor(obj))         
         else            
-            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))         
+            #I have doubts about this line
+            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))             
 ```
 
 In case of form, you can set the form_name_object_id with an _id or with an object of initial values. In the first case, a findOne will be done and the object retrieved is populated. The subforms are visible and ready to modify the data. In the second case, an object with initial values is populated, pending to be inserted. The subforms are hidden till the form is inserted.
@@ -224,5 +230,9 @@ The delete of objects is implemented setting the attr *\_valid* to false. You ha
     * [bootstrap date-picker](https://github.com/eternicode/bootstrap-datepicker). I have select the es locale.
     
     * [datetimepicker](http://www.malot.fr/bootstrap-datetimepicker/)
+
+    * underscore.string
+
+    * momentjs
 
 * TODO: more comments to the code. More tests.
