@@ -62,13 +62,17 @@ make_form_events = (form_name, klass) ->
     dct
     
 obj_from_path = (obj, path) ->
+    if typeof path == 'string'
+        path = path.split('.')
     id = obj._id
     for v in path
         obj = obj[v]
+        if obj is undefined 
+            break         
     if not obj
         obj = {}
     obj._id = id
-    obj._path = path #
+    obj._path = path 
     obj
     
     
@@ -84,7 +88,7 @@ _make_autorun = (form_name, klass, parent, path)->->
         path_ = path.split('.')
         initial = Session.get(form_name+'_object_id')
         if typeof initial == 'string'
-            path_[path_.length-1] = initial
+            path_ = initial.split('.')
             initial = {}        
     else
         x = Session.get(form_name+'_object_id')
@@ -94,24 +98,22 @@ _make_autorun = (form_name, klass, parent, path)->->
             id = ''
             initial = x
         path_ = []
-  
-        
-    #Meteor.subscribe(form_name+"_x_id", id)
+          
     if id == ''
         obj = null
     else
         Meteor.subscribe(form_name+"_x_id", id)
         obj = klass._collection.findOne({_id: id})
+
     if path_.length == 0        
         if obj
-            obj._path = []
             Session.set(form_name+'_object', klass.constructor(obj))  
         else
             Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=initial))            
     else
-        if obj            
+        if obj  
             obj = obj_from_path(obj, path_)
-            #obj._path = path_
+
             if _.isEqual(obj, {_id: obj._id, _path:path_})
                 Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
             else
@@ -128,13 +130,23 @@ _dirty = (form_name) ->
         else
             ''
 
-_invisible = (parent) ->
-    ->
-        #if Session.get(parent+'_object_id') == '' or 
+_invisible = (parent, form_name) ->
+    -> 
         if _.isObject(Session.get(parent+'_object_id'))
-            "invisible"
+            return "invisible"
         else
-            ""
+            obj = Session.get(form_name + '_object')
+            #spath = obj._path[...-1].join('.')
+            #if spath == ""
+            #    return ""
+            x = Session.get(parent+'_object')
+            
+            for v in obj._path[...-1]#spath.split('.')            
+                x = x[v]
+                if x is undefined
+                    return "invisible"
+            return ""
+
 _disabled = (form_name, klass) ->
     ->
         obj = Session.get(form_name+'_object')
@@ -160,7 +172,7 @@ make_form = (template, form_name, klass, parent=null, path=null)->
     template.dirty = _dirty(form_name)
 
     if parent
-        template.invisible = _invisible(parent)
+        template.invisible = _invisible(parent, form_name)
 
     template.format_string_array = (list) ->
         if list

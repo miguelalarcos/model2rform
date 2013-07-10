@@ -77,7 +77,7 @@ class Model
                         for func in klass[v][1..]
                             func(val)                        
                     catch error
-                        console.log('catch', error)
+                        console.log('catch', val, error)
                         return false
                     if not ok_for_requireds
                         ok_for_requireds = true
@@ -126,12 +126,14 @@ class Model
                 Session.set(form_name+'_object_id', _id_)
         else            
             last = obj._path[obj._path.length-1]
-            if /^\d+/.test(last) or last == '-1'
+            if /^\d+$/.test(last) or last == '-1'
                 pos = parseInt(last)
                 path = obj._path[0...-1].join('.')
                 dct = {}
                 dct[path] = 1
-                lista = @_collection.findOne({_id: obj._id}, dct)[path]
+                lista = @_collection.findOne({_id: obj._id}, dct)
+                for v in path.split('.')
+                    lista = lista[v]
             else
                 pos = null            
             
@@ -147,7 +149,8 @@ class Model
                 dct = {}
                 dct[path] = dct_aux 
                 @_collection.update({_id: obj._id}, {$push: dct })
-                Session.set(form_name+'_object_id', lista.length.toString())
+                #Session.set(form_name+'_object_id', lista.length.toString())
+                Session.set(form_name+'_object_id', obj._path[...-1].join(".")+'.'+lista.length.toString())
             else
                 path = obj._path.join('.')
                 dct_aux = {}

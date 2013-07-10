@@ -44,10 +44,35 @@ describe 'test template helpers', ->
         invisible().should.eql('invisible')
         
     it "invisible helper should return ''", ->
-        invisible = _invisible('form')
-        session.set('form_object_id', '0')
+        invisible = _invisible('parent','subform')
+        session.set('parent_object_id', '0')
+        session.set('subform_object', {_path:[]})
         
         invisible().should.eql('')    
+
+    it "invisible helper should return '' with path ok", ->
+        invisible = _invisible('parent','subform')
+        session.set('parent_object_id', '0')
+        session.set('subform_object', {_path:['n']})
+        session.set('parent_object', {x:8, n:{a:1, b:2}})
+        
+        invisible().should.eql('')
+
+    it "invisible helper should return 'invisible' with path undefined", ->
+        invisible = _invisible('parent','subform')
+        session.set('parent_object_id', '0')
+        session.set('subform_object', {_path:['n', 'n2']})
+        session.set('parent_object', {x:8})
+        
+        invisible().should.eql('invisible')
+
+    it "invisible helper should return '' with path ok", ->
+        invisible = _invisible('parent','subform')
+        session.set('parent_object_id', '0')
+        session.set('subform_object', {_path:['n', 'n2']})
+        session.set('parent_object', {x:8, n:{a:1}})
+        
+        invisible().should.eql('')
 
     it "disabled helper should return 'disabled' when (len of dirty == 0)", ->
         disabled = _disabled('form', A)   

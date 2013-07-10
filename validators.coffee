@@ -5,7 +5,7 @@ boolean = (x) ->
     else
         if not (typeof x == 'boolean')
             if x is null
-                return x
+                return x 
             throw "The value must be a boolean"
         x
     
@@ -54,7 +54,6 @@ date = (format) ->
                 throw 'Date not valid'
         else
             if not (x instanceof Date)
-                console.log("Value must be a Date type")
                 throw "Value must be a Date type"
             moment(x)
 
@@ -95,8 +94,7 @@ float = (x) ->
     else
         if not (typeof x == 'number')
             if x is null
-                return null
-            console.log(x, "Must be a float")            
+                return null           
             throw "Must be a float"
         x
         
