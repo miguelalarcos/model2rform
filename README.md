@@ -3,6 +3,8 @@ model2rform
 
 Model to reactive form: this is the work of a newbie in Meteor trying to make forms easy. The project uses a little of Python.
 
+See the latest [version.](https://github.com/miguelalarcos/model2rform)
+
 Let's go to an example, the *model.py* (you can see the complete [example.](https://github.com/miguelalarcos/demo-model2rform)):
 
 ```python
@@ -88,7 +90,7 @@ na = nested_array('C')
 
 *n* is an nested object of model *B*. *na* is an array of objects of model *C*. They are not considered attributes of model *A*. Note that the validations are made inside classes *B* and *C*, and not here in *A*.
 
-Let's see how to translate the Python model to Coffeescript model and the templates. We will use the script *model2template.py*. In a file called *model.py* we write the code seen of the model and submodel, and then we call:
+Let's see how to translate the Python model to Coffeescript model and the templates. We will use the script *model2template.py*. In a file called *model.py* we write the code seen of the model and submodel, and then we call *make_all*:
 
 ```python
 order_E = (('v', 'V'),)
@@ -195,8 +197,12 @@ _make_autorun = (form_name, klass, parent, path)->->
         path_ = path.split('.')
         initial = Session.get(form_name+'_object_id')
         if typeof initial == 'string'
-            path_ = initial.split('.')
-            initial = {}        
+            path_ = initial.split('.')            
+            initial = {}  
+        else
+            if _.has(initial, '_path')   
+                path_ = initial._path.split('.')
+                delete initial._path
     else
         x = Session.get(form_name+'_object_id')
         if typeof x == 'string'
@@ -220,21 +226,27 @@ _make_autorun = (form_name, klass, parent, path)->->
     else
         if obj  
             obj = obj_from_path(obj, path_)
-
             if _.isEqual(obj, {_id: obj._id, _path:path_})
                 Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
             else
                 Session.set(form_name+'_object', klass.constructor(obj))         
         else            
-            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))                               
+            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))                                        
 ```
 
-In case of form, you can set the form_name_object_id with an _id or with an object of initial values. In the first case, a findOne will be done and the object retrieved is populated. The subforms are visible and ready to modify the data. In the second case, an object with initial values is populated, pending to be inserted. The subforms are hidden till the form is inserted.
+In case of form, you can set the form_name_object_id with an _id or with an object of initial values. In the first case, a findOne will be done and the object retrieved is populated. In the second case, an object with initial values is populated, pending to be inserted.
 
 In case of subform:
 
-* nested: you can pass an object of initial values.
-* nested array: you can pass an index position of the array meaning the object to display; you can pass an object of initial values if previously you have passed '-1'.
+You can pass an object of initial values for the default path or with a key *_path* for a new path. You can pass only a path. Examples:
+
+```coffee-script
+form_set('B', {x:8}) # for the default path that we indicated in the *make_form* call.
+
+form_set('B', {_path: 'n.0.n2.1', x:8}) # will show you the object to edit, or to create if does not exist with initial x=8.
+
+form_set('B', 'n.0.n2.1') # will show you that object to edit, or to create if does not exist.
+```
 
 The rule to know if a subform will be invisible or not is to know if the path to the subobject exists.
 

@@ -97,3 +97,16 @@ describe 'test make autorun', ->
 
         b.should.be.ok
         
+    it 'with path should not findOne with _id=0.n.0.n2.1 and initials', ->      
+        B._collection.findOne.returns({_id: '0', a:8, n:[{n2:[{x:0}]}]})
+        session.set('parent_object_id', '0')
+        ma = make_autorun('form1', B, 'parent', 'n.-1.n2.-1')        
+        
+        session.set('form1_object_id', {_path: 'n.0.n2.1', x:1})
+        ma()
+        obj = session.get('form1_object')  
+        console.log(obj)
+        b = _.isEqual(obj, {_id:'0', _path:['n','0', 'n2', '1'], _dirty: ['_valid', 'x'], _valid:true, x:1, _error_x:'', _error_y : '', _error__valid : ''})
+
+        b.should.be.ok
+            

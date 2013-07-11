@@ -94,8 +94,12 @@ _make_autorun = (form_name, klass, parent, path)->->
         path_ = path.split('.')
         initial = Session.get(form_name+'_object_id')
         if typeof initial == 'string'
-            path_ = initial.split('.')
-            initial = {}        
+            path_ = initial.split('.')            
+            initial = {}  
+        else
+            if initial and _.has(initial, '_path')   
+                path_ = initial._path.split('.')
+                delete initial._path
     else
         x = Session.get(form_name+'_object_id')
         if typeof x == 'string'
@@ -119,7 +123,6 @@ _make_autorun = (form_name, klass, parent, path)->->
     else
         if obj  
             obj = obj_from_path(obj, path_)
-
             if _.isEqual(obj, {_id: obj._id, _path:path_})
                 Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
             else
