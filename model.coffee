@@ -42,6 +42,11 @@ class Model
         obj._valid = false
         obj._dirty.push('_valid')
 
+    @findOne : (dct) ->
+        obj = @_collection.findOne(dct)
+        @constructor(obj)
+        return obj
+
     @validate : (obj, id) ->
         
         if _.isEmpty(obj)

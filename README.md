@@ -58,16 +58,25 @@ It is important to say that de array must have as first field a transformation (
 Let's see the other models:
 
 ```python
+class E(SubModel): 
+    _collection = 'myCollection'
+    v = integer
+
+class D(SubModel):
+    _collection = 'myCollection'
+    u = integer
+
 class B(SubModel):
     _collection = 'myCollection'
     x = [integer, required]
     y = boolean
+    z = nested('D')
 
 class C(SubModel):
     _collection = 'myCollection'
     a = integer
     b = integer
-
+    c = nested('E')
 ```
 
 The only important thing is that they extend from SubModel. Well, we are in disposition of explain the nested objects of the first model:
@@ -82,11 +91,15 @@ na = nested_array('C')
 Let's see how to translate the Python model to Coffeescript model and the templates. We will use the script *model2template.py*. In a file called *model.py* we write the code seen of the model and submodel, and then we call:
 
 ```python
+order_E = (('v', 'V'),)
+order_D = (('u', 'U'),)
 order_B = (('x', 'X'), ('y', 'Y'))
 order_C = (('a', 'A'), ('b', 'B'))
 order_A = (('ac', 'Autocomplete'), ('i', 'Integer'), ('f', 'Float'), ('c', 'Computed'), ('b', 'Boolean'), ('s', 'String'), ('d', 'Date'), ('dt', 'Datetime'), ('ss', 'String-select'), ('t', 'Text'), ('sa','StringArray'))
 
 make_all([
+    [E, 'E', order_E, {}],
+    [D, 'D', order_D, {}],
     [B, 'B', order_B, {}],
     [C, 'C', order_C, {}],
     [A, 'A', order_A, {'t': 'rows="10"'}]
@@ -108,8 +121,10 @@ That is the only important thing we have to do in the client (Look at the exampl
 If we are making subforms, then the code is:
 
 ```coffee-script
-make_form.make_form  Template.B, 'B', B, 'A', 'n'
-make_form.make_form  Template.C, 'C', C, 'A', 'na.-1'
+model2rform_make_form.make_form  Template.B, 'B', B, 'A', 'n'
+model2rform_make_form.make_form  Template.D, 'D', D, 'A', 'n.z'
+model2rform_make_form.make_form  Template.C, 'C', C, 'A', 'na.-1'
+model2rform_make_form.make_form  Template.E, 'E', E, 'A', 'na.-1.c'
 ```
 
 We also pass the parent form and the path. In case of array, indicating -1, which means that the subform will push an object to the array. When we change the path to something like na.0, then command save will save to the position 0 of the array.
@@ -180,7 +195,7 @@ _make_autorun = (form_name, klass, parent, path)->->
         path_ = path.split('.')
         initial = Session.get(form_name+'_object_id')
         if typeof initial == 'string'
-            path_[path_.length-1] = initial
+            path_ = initial.split('.')
             initial = {}        
     else
         x = Session.get(form_name+'_object_id')
@@ -196,21 +211,22 @@ _make_autorun = (form_name, klass, parent, path)->->
     else
         Meteor.subscribe(form_name+"_x_id", id)
         obj = klass._collection.findOne({_id: id})
+
     if path_.length == 0        
         if obj
-            obj._path = []
             Session.set(form_name+'_object', klass.constructor(obj))  
         else
             Session.set(form_name+'_object', klass.constructor({_id:'', _path:[]}, initials=initial))            
     else
-        if obj            
+        if obj  
             obj = obj_from_path(obj, path_)
+
             if _.isEqual(obj, {_id: obj._id, _path:path_})
                 Session.set(form_name+'_object', klass.constructor(obj, initials=initial))
             else
                 Session.set(form_name+'_object', klass.constructor(obj))         
         else            
-            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))                      
+            Session.set(form_name+'_object', klass.constructor({_id:''}, initials=initial))                               
 ```
 
 In case of form, you can set the form_name_object_id with an _id or with an object of initial values. In the first case, a findOne will be done and the object retrieved is populated. The subforms are visible and ready to modify the data. In the second case, an object with initial values is populated, pending to be inserted. The subforms are hidden till the form is inserted.
@@ -219,6 +235,8 @@ In case of subform:
 
 * nested: you can pass an object of initial values.
 * nested array: you can pass an index position of the array meaning the object to display; you can pass an object of initial values if previously you have passed '-1'.
+
+The rule to know if a subform will be invisible or not is to know if the path to the subobject exists.
 
 The delete of objects is implemented setting the attr *\_valid* to false. You have to use the class method *setInvalid*.
 

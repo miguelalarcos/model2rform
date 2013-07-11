@@ -75,6 +75,12 @@ obj_from_path = (obj, path) ->
     obj._path = path 
     obj
     
+
+form_get = (form_name) ->
+    Session.get(form_name+'_object')
+
+form_set = (form_name, obj_path) ->
+    Session.set(form_name + '_object_id', obj_path)    
     
 #subscribe to the channel of the form_object_id and respective findOne    
 _make_autorun = (form_name, klass, parent, path)->->
@@ -263,6 +269,9 @@ make_autocomplete =  (target, attr, collection) ->
 @model2rform_make_form =
     make_form: make_form
     obj_from_path: obj_from_path
+    form_get: form_get
+    form_set: form_set
+        
 
 if typeof exports != 'undefined'    
     exports.make_form =             
