@@ -8,5 +8,6 @@ Package.on_use(function (api) {
     api.add_files('lib/model2rform/css/rform.css', 'client');
     
     api.add_files('lib/model2rform/js/make_form.js', 'client');
+    api.add_files('lib/model2rform/js/search.js', 'client');
     api.add_files(['lib/model2rform/js/model.js', 'lib/model2rform/js/validators.js'], ['client', 'server']);   
 });
