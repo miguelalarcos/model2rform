@@ -62,6 +62,15 @@ def references(collection, collection_attr, channel):
     references_.__name__ = "references({c},'{ca}')".format(c=collection, ca=collection_attr)    
     return references_
 
+def ref_value(collection, collection_attr, channel):
+    def references_(): pass
+    references_.collection = collection
+    references_.collection_attr = collection_attr
+    references_.channel = channel
+    references_.__name__ = "ref_value({c},'{ca}')".format(c=collection, ca=collection_attr)    
+    return references_
+
+
 
 def computed(comp):
     def computed_():pass
@@ -77,6 +86,14 @@ key_template['references'] = """\
     <div class="error">{{{{_error_{attr}}}}}</div></td>
 </tr>
 """
+
+key_template['ref_value'] = """\
+<tr>
+    <td>{display}:</td><td><input type="text" class="{{{{dirty '{attr}'}}}} {form_name}_attr_autocomplete" value="{{{{{attr}}}}}" name="{attr}" id="{form_name}_{attr}">
+    <div class="error">{{{{_error_{attr}}}}}</div></td>
+</tr>
+"""
+
 
 key_template['generic'] = """\
 <tr>
@@ -179,6 +196,8 @@ def _model2template(model, name, order, out, properties = {}):
             
             if tipo_name.startswith('references'):
                 f_out.write(key_template['references'].format(display=display, form_name=form_name, attr=attr, collection=tipo.collection, collection_attr=tipo.collection_attr))
+            if tipo_name.startswith('ref_value'):
+                f_out.write(key_template['ref_value'].format(display=display, form_name=form_name, attr=attr, collection=tipo.collection, collection_attr=tipo.collection_attr))        
             if tipo_name in ('string', 'integer', 'float'):
                 f_out.write(key_template['generic'].format(display=display, form_name=form_name, attr=attr))
             if tipo_name.startswith('datetime'):
@@ -265,7 +284,7 @@ def _model2model(model, out):
                     for_rendered['datetime'][attr] = model.__dict__[attr][0].format2
                 elif name_attr.startswith('date('):
                     for_rendered['date'][attr] = model.__dict__[attr][0].format2
-                elif name_attr.startswith('references'):
+                elif name_attr.startswith('references') or name_attr.startswith('ref_value'):
                     ref = model.__dict__[attr][0]
                     for_rendered['autocomplete'][attr] = '["{a}", "{b}", "{c}"]'.format(a=ref.channel, b=ref.collection_attr, c=ref.collection)
             elif model.__dict__[attr][0].__name__.startswith('nested_array'):
@@ -293,7 +312,8 @@ float = validators.float
 boolean = validators.boolean
 computed = validators.computed
 references = validators.references
-references_ = validators.references_
+ref_value = validators.ref_value
+
 string = validators.string
 string_array = validators.string_array
 text = validators.text

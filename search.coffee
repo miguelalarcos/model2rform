@@ -93,6 +93,7 @@ make_search = (template, search_name, klass) ->
                 selector[attr] = value
 
         console.log(selector)
+        Session.set(search_name + '_selector', selector)
     dct['input .'+search_name+'_attr'] = on_change_generic(search_name, klass)
     dct['click .'+search_name+'_attr_bool'] = on_change_bool(search_name, klass)
     dct['change .'+search_name+'_attr_select'] = on_change_generic(search_name, klass)

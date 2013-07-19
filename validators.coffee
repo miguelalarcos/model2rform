@@ -130,7 +130,18 @@ smax = (limit) ->
     (x) ->
         if x and x.length > limit
             throw "Length of string must be less-equal than " + limit
-                
+
+ref_value = (list, attr) ->
+    (x) ->
+        if x == ''
+            return ''
+        dct = {}
+        dct[attr] = x
+        obj = list.findOne(dct)
+        if obj
+            return x
+        else
+            throw "Value must be in the list."                
 
 references = (list, attr) ->
     (x) ->  
@@ -159,7 +170,6 @@ reference_from_value = (list, attr, x) ->
     dct[attr] = x
     
     obj = list.findOne(dct)
-    console.log('obj', obj)
     if obj            
         return obj._id
 
@@ -191,7 +201,8 @@ string_select = (list) ->
     max: max
     smin: smin
     smax :smax
-    references: references    
+    references: references  
+    ref_value: ref_value  
     reference_from_value: reference_from_value
     email: email
     string_select: string_select
