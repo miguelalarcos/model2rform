@@ -80,6 +80,14 @@ def computed(comp):
 def string_array(): pass
 
 key_template = {}
+
+key_template['_initials'] = """\
+<tr>
+    <td><input type="text" name="_initials" id="{form_name}__initials"></td>
+    <td><button id="{form_name}_new">New</button></td>
+</tr>
+"""
+
 key_template['references'] = """\
 <tr>
     <td>{display}:</td><td><input type="text" class="{{{{dirty '{attr}'}}}} {form_name}_attr_autocomplete" value="{{{{from_pk {attr} '{collection}' '{collection_attr}'}}}}" name="{attr}" id="{form_name}_{attr}">
@@ -188,6 +196,8 @@ def _model2template(model, name, order, out, properties = {}):
             f_out.write(init_submodel.format(form_name=form_name))
         else:
             f_out.write(init.format(form_name=form_name))
+
+        f_out.write(key_template['_initials'].format(form_name=form_name))    
         for attr, display in order:
             tipo = getattr(model, attr)#[0]
             if isinstance(tipo, list):
@@ -264,7 +274,11 @@ def nested_array(model):
 def _model2model(model, out):
     attrs = []
     nested_arrays = []
-    for_rendered = {'date':{}, 'datetime': {}, 'autocomplete':{}}
+    ref = model._initials
+    initials = '["{a}", "{b}", "{c}"]'.format(a=ref.channel, b=ref.collection_attr, c=ref.collection)
+    for_rendered = {'date':{}, 
+                    'datetime': {}, 
+                    'autocomplete':{'_initials': initials}}
     f_out = out
     if True:        
         if issubclass(model, SubModel):
@@ -341,4 +355,67 @@ nested_array = validators.nested_array
             _model2template(m, name, order, out_template, properties)
    
         
+init_table = """\
+<template name="{name_template}">
+<a name="{name_template}"></a> 
+<a path="{path}.-1" href="#{name_template}" class="listado">Nueva linea</a>
+<table><thead><tr>
+"""
+
+sub_init_table = """\
+</tr></thead><tbody>
+{{#each row}}
+"""
+
+end_table = """\
+{{/each}}
+</tbody></table>
+</template>
+"""
         
+def make_table_from_array(name_template, path, order):
+    with open(os.path.join('client','templates_tables.html'),'w') as out:
+        out.write(init_table.format(name_template=name_template, path=path)) 
+        for n,m in order:
+            out.write("<th>{col}</th>\n".format(col=m))
+        out.write(sub_init_table)
+        out.write('<tr>')
+        for n,m in order:
+            out.write('<td>')    
+            out.write('{{{{{n}}}}}'.format(n=n))    
+            out.write('</td>')
+        out.write('<td><a href="#{name_template}" path="{{{{_path}}}}" class="listado">editar</a></td><td>eliminar</td>'.format(name_template=name_template))    
+        out.write('</tr>')
+        out.write(end_table)
+
+init_table_coll = """\
+<template name="{name_template}">
+<a name="{name_template}"></a> 
+<table><thead><tr>
+"""
+
+sub_init_table_coll = """\
+</tr></thead><tbody>
+{{#each row}}
+"""
+
+end_table_coll = """\
+{{/each}}
+</tbody></table>
+</template>
+"""
+
+def make_table_from_collection(name_template, order):
+    with open(os.path.join('client','templates_tables_collection.html'),'w') as out:
+        out.write(init_table_coll.format(name_template=name_template))
+        for n,m in order:
+            out.write("<th>{col}</th>\n".format(col=m))
+        out.write(sub_init_table_coll)
+        out.write('<tr>')
+        for n,m in order:
+            out.write('<td>')    
+            out.write('{{{{{n}}}}}'.format(n=n))    
+            out.write('</td>')
+        out.write('<td><a href="#{name_template}" _id = "{{{{_id}}}}" class="listado">editar</a></td><td>eliminar</td>'.format(name_template=name_template))    
+        out.write('</tr>')
+        out.write(end_table_coll)

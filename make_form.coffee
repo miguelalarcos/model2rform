@@ -44,14 +44,24 @@ rotate_checkbox = (cb) ->
                         
 
 #setup the events like typing in the boxes, enter in the search box, ...
-make_form_events = (form_name, klass) ->
+make_form_events = (form_name, klass, initials) ->
     dct = {}               
     
     #it shoudl be click, but does not work in chrome (works in opera and firefox)
     dct['mouseup #'+form_name+'_save'] = (e, t)->        
         obj = Session.get(form_name+'_object')         
         klass.save(obj, form_name)   
-        
+    
+    dct['click #'+form_name+'_new'] = (e, t) ->
+        [channel, attr, collection] = JSON.parse(initials)
+        dct = {}
+        dct[attr] = $('#'+form_name+'__initials').val()
+        x = window[collection].findOne(dct)
+        if x
+            delete x[attr]
+            delete x._id
+            form_set(form_name, x)
+
     dct['input .'+form_name+'_attr'] = _on_change_generic(form_name, klass)    
     dct['click .'+form_name+'_attr_bool'] = _on_change_bool(form_name, klass)
     dct['change .'+form_name+'_attr_select'] = _on_change_generic(form_name, klass)
@@ -200,7 +210,7 @@ make_form = (template, form_name, klass, parent=null, path=null)->
 
     template.disabled = _disabled(form_name, klass)            
         
-    template.events make_form_events(form_name, klass)
+    template.events make_form_events(form_name, klass, klass._for_rendered['autocomplete']['_initials'])
     
     template.from_pk = (data_id, lista, attr) ->        
         lista=window[lista]
@@ -254,7 +264,8 @@ make_form = (template, form_name, klass, parent=null, path=null)->
             for ac of for_rendered['autocomplete']
                 [channel, attr, collection] = JSON.parse(for_rendered['autocomplete'][ac])
                 Meteor.subscribe(channel)
-                target_id = '#'+form_name+' input[name='+ac+']'  
+                target_id = '#'+form_name+' input[name='+ac+']' 
+                console.log(':', collection) 
                 make_autocomplete target_id, attr, window[collection]
         
 make_autocomplete =  (target, attr, collection) ->   
